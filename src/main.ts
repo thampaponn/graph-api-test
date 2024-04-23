@@ -1,9 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get<ConfigService>(ConfigService);
   const config = new DocumentBuilder()
     .setTitle('graph api test')
     .setDescription('test')
@@ -11,7 +13,11 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  app.enableCors();
+  app.enableCors({
+    origin: configService.get<string>('ENDPOINT_CORS'),
+    methods: 'GET,POST,PUT,PATCH,DELETE',
+    credentials: true,
+  });
   await app.listen(3000);
 }
 bootstrap();

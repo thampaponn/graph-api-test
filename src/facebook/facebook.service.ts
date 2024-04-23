@@ -1,26 +1,91 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFacebookDto } from './dto/create-facebook.dto';
-import { UpdateFacebookDto } from './dto/update-facebook.dto';
+import axios from 'axios';
+import { FacebookPageQuery } from './dto/facebook-page.dto';
+import { HttpService } from "@nestjs/axios";
+import { FacebookInsightQuery } from './dto/facebook-insight.dto';
+import { IFacebookInsightResponse } from './entities/facebook-insight.interface';
 
 @Injectable()
 export class FacebookService {
-  create(createFacebookDto: CreateFacebookDto) {
-    return 'This action adds a new facebook';
+  constructor(
+    protected readonly httpService: HttpService
+  ) { }
+
+  async getFacebookInsight(query: FacebookInsightQuery): Promise<IFacebookInsightResponse> {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/insights`, {
+      params: {
+        metric: Array.isArray(query.metrics) ? query.metrics.join(',') : query.metrics,
+        date_preset: query?.datePreset,
+        period: query?.period,
+        since: query?.since,
+        until: query?.until,
+        access_token: query?.accessToken
+      }
+    })
+    const facebookInsights: IFacebookInsightResponse = axiosResponse.data
+    return facebookInsights
   }
 
-  findAll() {
-    return `This action returns all facebook`;
+  async getFacebookPage(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}`, {
+      params: {
+        fields: Array.isArray(query?.fields) ? query.fields.join(',') : query.fields,
+        access_token: query.accessToken
+      }
+    })
+    const pageInformation = axiosResponse.data
+    return pageInformation
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} facebook`;
+  async getFacebookPageFeed(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/feed`, {
+      params: {
+        fields: query?.fields,
+        access_token: query.accessToken
+      }
+    })
+    const pageFeedInformation = axiosResponse.data
+    return pageFeedInformation
   }
 
-  update(id: number, updateFacebookDto: UpdateFacebookDto) {
-    return `This action updates a #${id} facebook`;
+  async getFacebookPageAccessToken(pageId: string, accessToken: string) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${pageId}`, {
+      params: {
+        fields: 'access_token',
+        access_token: accessToken
+      }
+    })
+    const facebookResponse = axiosResponse.data
+    return facebookResponse
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} facebook`;
+  async getFacebookPostComments(postId: string, accessToken: string) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${postId}/comments`, {
+      params: {
+        access_token: accessToken
+      }
+    })
+    const facebookResponse = axiosResponse.data
+    return facebookResponse
+  }
+
+  async getFacebookPostLikes(postId: string, accessToken: string) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${postId}/likes`, {
+      params: {
+        access_token: accessToken
+      }
+    })
+    const facebookResponse = axiosResponse.data
+    return facebookResponse
+  }
+
+  async getFacebookPostReactions(postId: string, accessToken: string) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${postId}/reactions`, {
+      params: {
+        access_token: accessToken
+      }
+    })
+    const facebookResponse = axiosResponse.data
+    return facebookResponse
   }
 }
