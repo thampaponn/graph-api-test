@@ -14,9 +14,42 @@ export class FacebookService {
     protected readonly httpService: HttpService,
   ) { }
 
-  @Cron('30 8 * * * *', { name: 'All Facebook page insights', timeZone: 'Asia/Bangkok' })
-  handleCron() {
-    this.logger.debug('Called when the current second is 45');
+  async getFacebookPageLikes(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/insights/page_fans`, {
+      params: {
+        fields: Array.isArray(query?.fields) ? query.fields.join(',') : query.fields,
+        access_token: query.accessToken
+      }
+    })
+    const facebookInsights = axiosResponse.data
+    const todayLikes = facebookInsights.data[0].values[1].value
+    const yesterdayLikes = facebookInsights.data[0].values[0].value
+    const likesChanged = facebookInsights.data[0].values[1].value - facebookInsights.data[0].values[0].value
+    const result = { yesterdayLikes, todayLikes, likesChanged }
+    return result
+  }
+
+  async getFacebookPagePostCount(query: FacebookPageQuery) {
+    let allPosts = [];
+    let url = `https://graph.facebook.com/${query.pageId}/posts`;
+
+    while (url) {
+      const axiosResponse = await axios.get(url, {
+        params: {
+          fields: 'created_time,message,id',
+          access_token: query.accessToken,
+          limit: 100
+        }
+      });
+
+      const data = axiosResponse.data;
+      allPosts = allPosts.concat(data.data);
+  
+      // Update the URL for the next page
+      url = data.paging && data.paging.next ? data.paging.next : null;
+    } while (url);  // Continue as long as there is a 'next' page
+  
+    return allPosts.length;
   }
 
   async getFacebookInsight(query: FacebookInsightQuery): Promise<IFacebookInsightResponse> {

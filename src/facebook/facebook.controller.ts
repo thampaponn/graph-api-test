@@ -9,6 +9,16 @@ import { FacebookInsightQuery } from './dto/facebook-insight.dto';
 export class FacebookController {
   constructor(private readonly facebookService: FacebookService) { }
   // get page
+  @Get('get-facebook-page-likes')
+  async getFacebookPageLikes(@Query() FacebookPageQuery: FacebookPageQuery){
+    return this.facebookService.getFacebookPageLikes(FacebookPageQuery);
+  }
+
+  @Get('get-facebook-page-post-count')
+  async getFacebookPagePostCount(@Query() FacebookPageQuery: FacebookPageQuery) {
+    return this.facebookService.getFacebookPagePostCount(FacebookPageQuery);
+  }
+
   @Get('get-facebook-insight')
   async getFacebookPageInsight(@Query() FacebookInsightQuery: FacebookInsightQuery) {
     return this.facebookService.getFacebookInsight(FacebookInsightQuery);
