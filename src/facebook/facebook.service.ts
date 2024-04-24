@@ -1,15 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { FacebookPageQuery } from './dto/facebook-page.dto';
 import { HttpService } from "@nestjs/axios";
 import { FacebookInsightQuery } from './dto/facebook-insight.dto';
 import { IFacebookInsightResponse } from './entities/facebook-insight.interface';
+import { Cron } from '@nestjs/schedule';
+import { FacebookInsightMetricArray } from './entities/facebook.entity';
 
 @Injectable()
 export class FacebookService {
+  private readonly logger = new Logger(FacebookService.name)
   constructor(
-    protected readonly httpService: HttpService
+    protected readonly httpService: HttpService,
   ) { }
+
+  @Cron('30 8 * * * *', { name: 'All Facebook page insights', timeZone: 'Asia/Bangkok' })
+  handleCron() {
+    this.logger.debug('Called when the current second is 45');
+  }
 
   async getFacebookInsight(query: FacebookInsightQuery): Promise<IFacebookInsightResponse> {
     const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/insights`, {
