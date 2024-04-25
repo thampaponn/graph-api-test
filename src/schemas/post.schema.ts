@@ -2,28 +2,28 @@ import { Prop, SchemaFactory } from "@nestjs/mongoose";
 import { FacebookPostType, FacebookReactionType } from "src/facebook/entities/facebook-page-post.interface";
 
 export class Post {
-    @Prop()
+    @Prop({ type: String })
     pageId: string;
 
-    @Prop()
+    @Prop({ type: String })
     postId: string;
 
-    @Prop()
+    @Prop({ type: Object })
     postType: FacebookPostType;
 
-    @Prop()
+    @Prop({ type: String })
     message?: string;
-    
-    @Prop()
+
+    @Prop({ type: String })
     created_time?: string;
 
-    @Prop()
+    @Prop({ type: String })
     attachments?: string;
 
-    @Prop()
+    @Prop({ type: Object })
     reactions?: FacebookReactionType[];
 
-    @Prop()
+    @Prop({ type: String })
     comments?: string[];
 }
 
