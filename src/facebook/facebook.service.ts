@@ -5,7 +5,6 @@ import { HttpService } from "@nestjs/axios";
 import { FacebookInsightQuery } from './dto/facebook-insight.dto';
 import { IFacebookInsightResponse } from './entities/facebook-insight.interface';
 import { Cron } from '@nestjs/schedule';
-import { FacebookInsightMetricArray } from './entities/facebook.entity';
 
 @Injectable()
 export class FacebookService {
@@ -45,9 +44,8 @@ export class FacebookService {
       const data = axiosResponse.data;
       allPosts = allPosts.concat(data.data);
   
-      // Update the URL for the next page
       url = data.paging && data.paging.next ? data.paging.next : null;
-    } while (url);  // Continue as long as there is a 'next' page
+    } while (url);
   
     return allPosts.length;
   }
