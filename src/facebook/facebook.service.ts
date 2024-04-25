@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { FacebookPageQuery } from './dto/facebook-page.dto';
 import { HttpService } from "@nestjs/axios";
@@ -35,6 +35,9 @@ export class FacebookService {
   //Get
   async findById(pageId: string) {
     const page = await this.pageModel.findOne({pageId})
+    if (!page) {
+      throw new HttpException('Page not found', 404)
+    }
     return page
   }
 

@@ -13,8 +13,8 @@ export class FacebookController {
     return this.facebookService.savePage(FacebookPageQuery);
   }
 
-  @Get('get-page-info-from-db')
-  async getFacebookPage(@Query() pageId: string) {
+  @Get('/:pageId')
+  async getFacebookPage(@Param('pageId') pageId: string) {
     return this.facebookService.findById(pageId);
   }
   //update
