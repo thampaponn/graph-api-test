@@ -7,28 +7,28 @@ export class Page {
     @Prop({ type: String, unique: true })
     pageId: string;
 
-    @Prop()
+    @Prop({ type: String })
     name: string;
 
-    @Prop()
+    @Prop({ type: String })
     singleLineAddress?: string;
 
-    @Prop()
+    @Prop({ type: String })
     description?: string;
 
-    @Prop()
+    @Prop({ type: String })
     bio?: string;
 
-    @Prop()
+    @Prop({ type: String })
     email?: string;
 
     @Prop({ type: Object })
     location?: ILocation;
 
-    @Prop()
+    @Prop({ type: Number })
     likes: number;
 
-    @Prop()
+    @Prop({ type: Number })
     postCount: number;
 }
 
