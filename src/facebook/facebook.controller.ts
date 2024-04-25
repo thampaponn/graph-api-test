@@ -19,11 +19,6 @@ export class FacebookController {
     return this.facebookService.getFacebookPagePostCount(FacebookPageQuery);
   }
 
-  @Get('get-facebook-insight')
-  async getFacebookPageInsight(@Query() FacebookInsightQuery: FacebookInsightQuery) {
-    return this.facebookService.getFacebookInsight(FacebookInsightQuery);
-  }
-
   @Get('get-facebook-page')
   async getFacebookPage(@Query() FacebookInsightQuery: FacebookPageQuery) {
     return this.facebookService.getFacebookPage(FacebookInsightQuery);
