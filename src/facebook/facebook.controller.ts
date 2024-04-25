@@ -29,11 +29,6 @@ export class FacebookController {
     return this.facebookService.getFacebookPage(FacebookInsightQuery);
   }
 
-  @Get('get-facebook-page-feed')
-  async getFacebookPageFeed(@Query() FacebookInsightQuery: FacebookPageQuery) {
-    return this.facebookService.getFacebookPageFeed(FacebookInsightQuery);
-  }
-
   @Get('get-facebook-page-access-token')
   async getFacebookPageAccessToken(@Query('pageId') pageId: string, @Query('access_token') accessToken: string) {
     return this.facebookService.getFacebookPageAccessToken(pageId, accessToken);

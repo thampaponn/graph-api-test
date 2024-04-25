@@ -60,7 +60,6 @@ export class FacebookService {
   async getPageEvents(query: FacebookPageQuery) {
     const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/events`, {
       params: {
-        fields: Array.isArray(query?.fields) ? query.fields.join(',') : query.fields,
         access_token: query.accessToken
       }
     })
@@ -71,7 +70,6 @@ export class FacebookService {
   async getPageAlbums(query: FacebookPageQuery) {
     const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/albums`, {
       params: {
-        fields: Array.isArray(query?.fields) ? query.fields.join(',') : query.fields,
         access_token: query.accessToken
       }
     })
@@ -82,7 +80,6 @@ export class FacebookService {
   async getFacebookPageLikes(query: FacebookPageQuery) {
     const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/insights/page_fans`, {
       params: {
-        fields: Array.isArray(query?.fields) ? query.fields.join(',') : query.fields,
         access_token: query.accessToken
       }
     })
@@ -135,23 +132,11 @@ export class FacebookService {
   async getFacebookPage(query: FacebookPageQuery) {
     const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}`, {
       params: {
-        fields: Array.isArray(query?.fields) ? query.fields.join(',') : query.fields,
         access_token: query.accessToken
       }
     })
     const pageInformation = axiosResponse.data
     return pageInformation
-  }
-
-  async getFacebookPageFeed(query: FacebookPageQuery) {
-    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/feed`, {
-      params: {
-        fields: query?.fields,
-        access_token: query.accessToken
-      }
-    })
-    const pageFeedInformation = axiosResponse.data
-    return pageFeedInformation
   }
 
   async getFacebookPageAccessToken(pageId: string, accessToken: string) {
@@ -186,12 +171,25 @@ export class FacebookService {
   }
 
   async getFacebookPostReactions(postId: string, accessToken: string) {
-    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${postId}/reactions`, {
-      params: {
-        access_token: accessToken
-      }
-    })
-    const facebookResponse = axiosResponse.data
-    return facebookResponse
+    let allReactions = [];
+    let url = `https://graph.facebook.com/${postId}/reactions`;
+
+    while (url) {
+      const axiosResponse = await axios.get(url, {
+        params: {
+          fields: 'id,name,type',
+          access_token: accessToken,
+          limit: 100
+        }
+      });
+
+      const data = axiosResponse.data;
+      allReactions = allReactions.concat(data.data);
+
+      // check if next is null or not
+      url = data.paging && data.paging.next ? data.paging.next : null;
+    } while (url);
+
+    return allReactions.length;
   }
 }
