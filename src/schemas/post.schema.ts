@@ -5,10 +5,10 @@ export class Post {
     @Prop({ type: String })
     pageId: string;
 
-    @Prop({ type: String })
+    @Prop({ type: String, index: true})
     postId: string;
 
-    @Prop({ type: Object })
+    @Prop({ type: String, index: true})
     postType: FacebookPostType;
 
     @Prop({ type: String })
@@ -20,7 +20,7 @@ export class Post {
     @Prop({ type: String })
     attachments?: string;
 
-    @Prop({ type: Object })
+    @Prop({ type: String })
     reactions?: FacebookReactionType[];
 
     @Prop({ type: String })
