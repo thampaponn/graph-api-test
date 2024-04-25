@@ -17,12 +17,12 @@ export enum FacebookReactionType {
 export interface IPage {
     pageId: string;
     name: string;
-    events: string[];
-    single_line_address: string;
-    description: string;
-    bio: string;
-    emails: string;
-    location: string;
+    events?: string[];
+    singleLineAddress?: string;
+    description?: string;
+    bio?: string;
+    emails?: string;
+    location?: string;
     likes: number;
     postCount: number;
 }
@@ -30,9 +30,9 @@ export interface IPage {
 export interface IPost {
     pageid: string;
     postId: string;
-    message: string;
+    message?: string;
     created_time: string;
-    attachments: string[];
+    attachments?: string[];
     postType: FacebookPostType;
     reactions: FacebookReactionType;
     comments: string[];
@@ -50,5 +50,14 @@ export interface IReaction {
     userId: string;
     name: string;
     reactionType: FacebookReactionType;
+}
+
+export interface ILocation {
+    city: string;
+    country: string;
+    latitude: number;
+    longtitude: number;
+    street: string;
+    zip: string;
 }
 

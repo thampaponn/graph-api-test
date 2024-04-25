@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { FacebookPageQuery } from './dto/facebook-page.dto';
 import { HttpService } from "@nestjs/axios";
-import { FacebookInsightQuery } from './dto/facebook-insight.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Page } from 'src/schemas/page.schema';
 import { Model } from 'mongoose';
@@ -16,23 +15,71 @@ export class FacebookService {
     @InjectModel(Page.name) private pageModel: Model<Page>,
     @InjectModel(Post.name) private postModel: Model<Post>
   ) { }
-
+  //Post
   async savePage(query: FacebookPageQuery) {
-    try {
-      const page = await this.getFacebookPagePostCount(query)
-      const dto = {
-        pageId: query.pageId,
-        likes: (await this.getFacebookPageLikes(query)).todayLikes,
-        postCount: page.length,
-        post: page.map(post => post.id),
-        albums: await this.getPageAlbums(query),
-        events: await this.getPageEvents(query),
-        feed: await this.getPageFeed(query),
+    const pageInfo = await this.getFacebookPage(query)
+    const pageId = pageInfo.id
+    const pageName = pageInfo.name
+    const pageSingleLineAddress = await this.getSingleLineAddress(query)
+    const pageDescription = await this.getPageDescription(query)
+    const pageBio = await this.getPageBio(query)
+    const pageEmails = await this.getPageEmails(query)
+    const pageLocation = await this.getPageLocation(query)
+    const pageLikes = await this.getFacebookPageLikes(query)
+    const pagePostCount = (await this.getFacebookPagePostCount(query)).length
+
+    const result = { pageId: pageId, name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location, likes: pageLikes.todayLikes, postCount: pagePostCount }
+    return await this.pageModel.create(result)
+  }
+
+  //Get
+  async findById(pageId: string) {
+    const page = await this.pageModel.findOne({pageId})
+    return page
+  }
+
+  async getPageLocation(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}`, {
+      params: {
+        fields: 'location',
+        access_token: query.accessToken
       }
-      return await this.pageModel.create(dto)
-    } catch (error) {
-      return error
-    }
+    })
+    const location = axiosResponse.data
+    return location
+  }
+
+  async getPageEmails(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}`, {
+      params: {
+        fields: 'emails',
+        access_token: query.accessToken
+      }
+    })
+    const emails = axiosResponse.data
+    return emails
+  }
+
+  async getPageBio(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}`, {
+      params: {
+        fields: 'bio',
+        access_token: query.accessToken
+      }
+    })
+    const bio = axiosResponse.data
+    return bio
+  }
+
+  async getPageDescription(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}`, {
+      params: {
+        fields: 'description',
+        access_token: query.accessToken
+      }
+    })
+    const description = axiosResponse.data
+    return description
   }
 
   async getSingleLineAddress(query: FacebookPageQuery) {
@@ -44,16 +91,6 @@ export class FacebookService {
     })
     const singleLineAddress = axiosResponse.data
     return singleLineAddress
-  }
-
-  async getPageFeed(query: FacebookPageQuery) {
-    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/feed`, {
-      params: {
-        access_token: query.accessToken
-      }
-    })
-    const feed = axiosResponse.data
-    return feed
   }
 
   async getPageEvents(query: FacebookPageQuery) {

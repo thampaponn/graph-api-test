@@ -1,40 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, SchemaType } from 'mongoose';
+import { ILocation } from 'src/facebook/entities/facebook-page-post.interface';
 
 @Schema({ timestamps: true })
 export class Page {
-    @Prop()
+    @Prop({ type: String, unique: true })
     pageId: string;
 
     @Prop()
     name: string;
 
     @Prop()
-    post?: string[];
-
-    @Prop()
-    insights?: string[];
-
-    @Prop()
-    albums?: string[];
-
-    @Prop()
-    events?: string[];
-
-    @Prop()
-    feed?: string[];
-
-    @Prop()
-    picture: string;
-
-    @Prop()
-    videos?: string[];
-
-    @Prop()
-    live_videos?: string[];
-
-    @Prop()
-    single_line_address?: string;
+    singleLineAddress?: string;
 
     @Prop()
     description?: string;
@@ -43,16 +20,16 @@ export class Page {
     bio?: string;
 
     @Prop()
-    emails?: string;
+    email?: string;
+
+    @Prop({ type: Object })
+    location?: ILocation;
 
     @Prop()
-    location?: string;
+    likes: number;
 
     @Prop()
-    likes: string;
-
-    @Prop()
-    postCount: string;
+    postCount: number;
 }
 
 export type PageDocument = Page & Document;
