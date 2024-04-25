@@ -53,4 +53,9 @@ export class FacebookController {
   async getFacebookPostReactions(@Query('postId') postId: string, @Query('access_token') accessToken: string) {
     return this.facebookService.getFacebookPostReactions(postId, accessToken);
   }
+
+  @Post('save-page-to-database')
+  async savePage(@Query () FacebookPageQuery: FacebookPageQuery) {
+    return this.facebookService.savePage(FacebookPageQuery);
+  }
 }

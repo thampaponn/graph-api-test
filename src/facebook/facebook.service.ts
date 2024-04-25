@@ -4,14 +4,80 @@ import { FacebookPageQuery } from './dto/facebook-page.dto';
 import { HttpService } from "@nestjs/axios";
 import { FacebookInsightQuery } from './dto/facebook-insight.dto';
 import { IFacebookInsightResponse } from './entities/facebook-insight.interface';
-import { Cron } from '@nestjs/schedule';
+import { InjectModel } from '@nestjs/mongoose';
+import { Page } from 'src/schemas/page.schema';
+import { Model } from 'mongoose';
+import { Post } from 'src/schemas/post.schema';
 
 @Injectable()
 export class FacebookService {
   private readonly logger = new Logger(FacebookService.name)
   constructor(
     protected readonly httpService: HttpService,
+    @InjectModel(Page.name) private pageModel: Model<Page>,
+    @InjectModel(Post.name) private postModel: Model<Post>
   ) { }
+
+  async savePage(query: FacebookPageQuery) {
+    try {
+      const page = await this.getFacebookPagePostCount(query)
+      const dto = {
+        pageId: query.pageId,
+        likes: (await this.getFacebookPageLikes(query)).todayLikes,
+        postCount: page.length,
+        post: page.map(post => post.id),
+        albums: await this.getPageAlbums(query),
+        events: await this.getPageEvents(query),
+        feed: await this.getPageFeed(query),
+      }
+      return await this.pageModel.create(dto)
+    } catch (error) {
+      return error
+    }
+  }
+
+  async getSingleLineAddress(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}`, {
+      params: {
+        fields: 'single_line_address',
+        access_token: query.accessToken
+      }
+    })
+    const singleLineAddress = axiosResponse.data
+    return singleLineAddress
+  }
+
+  async getPageFeed(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/feed`, {
+      params: {
+        access_token: query.accessToken
+      }
+    })
+    const feed = axiosResponse.data
+    return feed
+  }
+
+  async getPageEvents(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/events`, {
+      params: {
+        fields: Array.isArray(query?.fields) ? query.fields.join(',') : query.fields,
+        access_token: query.accessToken
+      }
+    })
+    const events = axiosResponse.data
+    return events
+  }
+
+  async getPageAlbums(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/albums`, {
+      params: {
+        fields: Array.isArray(query?.fields) ? query.fields.join(',') : query.fields,
+        access_token: query.accessToken
+      }
+    })
+    const albums = axiosResponse.data
+    return albums
+  }
 
   async getFacebookPageLikes(query: FacebookPageQuery) {
     const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/insights/page_fans`, {
@@ -43,11 +109,12 @@ export class FacebookService {
 
       const data = axiosResponse.data;
       allPosts = allPosts.concat(data.data);
-  
+
+      // check if next is null or not
       url = data.paging && data.paging.next ? data.paging.next : null;
     } while (url);
-  
-    return allPosts.length;
+
+    return allPosts;
   }
 
   async getFacebookInsight(query: FacebookInsightQuery): Promise<IFacebookInsightResponse> {
