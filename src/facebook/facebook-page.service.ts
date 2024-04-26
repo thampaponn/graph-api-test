@@ -15,6 +15,7 @@ export class FacebookService {
     @InjectModel(Page.name) private pageModel: Model<Page>,
     @InjectModel(Post.name) private postModel: Model<Post>
   ) { }
+
   //Post
   async savePage(query: FacebookPageQuery) {
     const pageInfo = await this.getFacebookPage(query)
@@ -32,9 +33,32 @@ export class FacebookService {
     return await this.pageModel.create(result)
   }
 
+  async updatePage(query: FacebookPageQuery) {
+    const page = await this.pageModel.findOne({ pageId: query.pageId })
+    if (!page) {
+      throw new HttpException('Page not found', 404)
+    }
+    const pageInfo = await this.getFacebookPage(query)
+    const pageName = pageInfo.name
+    const pageSingleLineAddress = await this.getSingleLineAddress(query)
+    const pageDescription = await this.getPageDescription(query)
+    const pageBio = await this.getPageBio(query)
+    const pageEmails = await this.getPageEmails(query)
+    const pageLocation = await this.getPageLocation(query)
+    const pageLikes = await this.getFacebookPageLikes(query)
+    const pagePostCount = (await this.getFacebookPagePostCount(query)).length
+    const result = { name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location, likes: pageLikes.todayLikes, postCount: pagePostCount }
+    await this.pageModel.updateOne({ pageId: query.pageId }, result)
+    return `Page with id ${query.pageId} updated successfully`
+  }
+
   //Get
+  async getAllPages() {
+    return await this.pageModel.find()
+  }
+
   async findById(pageId: string) {
-    const page = await this.pageModel.findOne({pageId})
+    const page = await this.pageModel.findOne({ pageId })
     if (!page) {
       throw new HttpException('Page not found', 404)
     }
@@ -216,4 +240,5 @@ export class FacebookService {
 
     return allReactions.length;
   }
+
 }

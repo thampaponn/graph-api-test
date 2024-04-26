@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
-import { FacebookService } from './facebook.service';
+import { FacebookService } from './facebook-page.service';
 import { ApiTags } from '@nestjs/swagger';
 import { FacebookPageQuery } from './dto/facebook-page.dto';
 
@@ -13,10 +13,22 @@ export class FacebookController {
     return this.facebookService.savePage(FacebookPageQuery);
   }
 
+  @Get('get-all-pages')
+  async getAllPages() {
+    return this.facebookService.getAllPages();
+  }
+
   @Get('/:pageId')
   async getFacebookPage(@Param('pageId') pageId: string) {
     return this.facebookService.findById(pageId);
   }
-  //update
-  //delete
+
+  @Patch('/:pageId')
+  async updateFacebookPage(@Query() FacebookPageQuery: FacebookPageQuery) {
+    return this.facebookService.updatePage(FacebookPageQuery);
+  }
+  // @Get()
+  // async savePost(@Query() FacebookPageQuery: FacebookPageQuery) {
+  //   return this.facebookService.savePost(FacebookPageQuery);
+  // }
 }

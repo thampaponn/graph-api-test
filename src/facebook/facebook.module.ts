@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { FacebookService } from './facebook.service';
+import { FacebookService } from './facebook-page.service';
 import { FacebookController } from './facebook.controller';
 import { HttpModule } from '@nestjs/axios';
 import { MongooseModule } from '@nestjs/mongoose';

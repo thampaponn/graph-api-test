@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FacebookService } from './facebook.service';
+import { FacebookService } from './facebook-page.service';
 
 describe('FacebookService', () => {
   let service: FacebookService;
