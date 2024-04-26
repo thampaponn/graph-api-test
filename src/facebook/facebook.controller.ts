@@ -38,15 +38,10 @@ export class FacebookController {
     return this.facebookPageService.deletePage(pageId);
   }
 
-  @Get('type')
-  async getFacebookPosts(@Query() facebookPageQuery: FacebookPageQuery) {
-    return this.facebookPostService.getFacebookPagePosts(facebookPageQuery);
-  }
-
-  @Get()
-  async getPostType(@Query() facebookPostQuery: FacebookPostQuery) {
-    return this.facebookPostService.getPostType(facebookPostQuery);
-  }
+  // @Get()
+  // async getFacebookPosts(@Query() facebookPageQuery: FacebookPageQuery) {
+  //   return this.facebookPostService.getFacebookPagePosts(facebookPageQuery);
+  // }
 
   @Post('save-post-to-db')
   async savePost(@Query() facebookPageQuery: FacebookPageQuery) {

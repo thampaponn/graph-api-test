@@ -24,7 +24,7 @@ export class FacebookPostService {
         const attachments = postsInfo.map(post => post.attachments);
         const reactions = postsInfo.map(post => post.reactions);
         const comments = postsInfo.map(post => post.comments);
-        return postsInfo;
+        return await this.postModel.insertMany(postsInfo);
     }
 // , attachments, reactions, comments
     async getFacebookPagePosts(query: FacebookPageQuery) {
