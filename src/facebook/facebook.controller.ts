@@ -27,8 +27,9 @@ export class FacebookController {
   async updateFacebookPage(@Query() FacebookPageQuery: FacebookPageQuery) {
     return this.facebookService.updatePage(FacebookPageQuery);
   }
-  // @Get()
-  // async savePost(@Query() FacebookPageQuery: FacebookPageQuery) {
-  //   return this.facebookService.savePost(FacebookPageQuery);
-  // }
+
+  @Delete('/:pageId')
+  async deleteFacebookPage(@Param('pageId') pageId: string){
+    return this.facebookService.deletePage(pageId);
+  }
 }

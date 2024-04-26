@@ -33,6 +33,7 @@ export class FacebookService {
     return await this.pageModel.create(result)
   }
 
+  //Pacth
   async updatePage(query: FacebookPageQuery) {
     const page = await this.pageModel.findOne({ pageId: query.pageId })
     if (!page) {
@@ -50,6 +51,16 @@ export class FacebookService {
     const result = { name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location, likes: pageLikes.todayLikes, postCount: pagePostCount }
     await this.pageModel.updateOne({ pageId: query.pageId }, result)
     return `Page with id ${query.pageId} updated successfully`
+  }
+
+  //Delete
+  async deletePage(pageId: string) {
+    const page = await this.pageModel.findOne({ pageId: pageId })
+    if (!page) {
+      throw new HttpException('Page not found', 404)
+    }
+    await this.pageModel.deleteOne({ pageId: pageId })
+    return `Page with id ${pageId} deleted successfully`
   }
 
   //Get
