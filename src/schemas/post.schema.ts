@@ -5,10 +5,10 @@ export class Post {
     @Prop({ type: String })
     pageId: string;
 
-    @Prop({ type: String, index: true})
+    @Prop({ type: String, index: true })
     postId: string;
 
-    @Prop({ type: String, index: true})
+    @Prop({ type: String, index: true })
     postType: FacebookPostType;
 
     @Prop({ type: String })
@@ -27,5 +27,5 @@ export class Post {
     comments?: string[];
 }
 
-export type PageDocument = Post & Document;
+export type PostDocument = Post & Document;
 export const PostSchema = SchemaFactory.createForClass(Post);

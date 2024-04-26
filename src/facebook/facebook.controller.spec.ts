@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FacebookController } from './facebook.controller';
-import { FacebookService } from './facebook-page.service';
+import { FacebookService } from './services/facebook-page.service';
 
 describe('FacebookController', () => {
   let controller: FacebookController;

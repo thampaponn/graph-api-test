@@ -1,19 +1,17 @@
 import { HttpException, Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
-import { FacebookPageQuery } from './dto/facebook-page.dto';
+import { FacebookPageQuery } from '../dto/facebook-page.dto';
 import { HttpService } from "@nestjs/axios";
 import { InjectModel } from '@nestjs/mongoose';
 import { Page } from 'src/schemas/page.schema';
 import { Model } from 'mongoose';
-import { Post } from 'src/schemas/post.schema';
 
 @Injectable()
-export class FacebookService {
-  private readonly logger = new Logger(FacebookService.name)
+export class FacebookPageService {
+  private readonly logger = new Logger(FacebookPageService.name)
   constructor(
     protected readonly httpService: HttpService,
     @InjectModel(Page.name) private pageModel: Model<Page>,
-    @InjectModel(Post.name) private postModel: Model<Post>
   ) { }
 
   //Post
@@ -30,6 +28,7 @@ export class FacebookService {
     const pagePostCount = (await this.getFacebookPagePostCount(query)).length
 
     const result = { pageId: pageId, name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location, likes: pageLikes.todayLikes, postCount: pagePostCount }
+    this.logger.log(result)
     return await this.pageModel.create(result)
   }
 
@@ -49,6 +48,7 @@ export class FacebookService {
     const pageLikes = await this.getFacebookPageLikes(query)
     const pagePostCount = (await this.getFacebookPagePostCount(query)).length
     const result = { name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location, likes: pageLikes.todayLikes, postCount: pagePostCount }
+    this.logger.log(result)
     await this.pageModel.updateOne({ pageId: query.pageId }, result)
     return `Page with id ${query.pageId} updated successfully`
   }

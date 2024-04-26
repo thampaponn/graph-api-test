@@ -1,10 +1,10 @@
 import { Prop, SchemaFactory } from "@nestjs/mongoose";
 
 export class Comment {
-    @Prop()
+    @Prop({ type: String, index: true })
     commentId: string;
 
-    @Prop()
+    @Prop({ type: String })
     message: string;
 
     @Prop()
