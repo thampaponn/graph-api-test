@@ -24,6 +24,7 @@ export class FacebookPostService {
         const attachments = postsInfo.map(post => post.attachments);
         const reactions = postsInfo.map(post => post.reactions);
         const comments = postsInfo.map(post => post.comments);
+        console.log(postsInfo);
         return await this.postModel.insertMany(postsInfo);
     }
 // , attachments, reactions, comments
@@ -34,7 +35,7 @@ export class FacebookPostService {
         while (url) {
             const axiosResponse = await axios.get(url, {
                 params: {
-                    fields: 'id, created_time, message, attachments, reactions, comments',
+                    fields: 'id,created_time,message,attachments,reactions,comments',
                     access_token: query.accessToken,
                     limit: 100
                 }

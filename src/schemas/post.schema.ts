@@ -7,7 +7,7 @@ export class Post {
     pageId: string;
 
     @Prop({ type: String, index: true })
-    postId: string;
+    id: string;
 
     // @Prop({ type: String, index: true })
     // postType: FacebookPostType;
