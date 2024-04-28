@@ -6,11 +6,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PageSchema } from 'src/schemas/page.schema';
 import { PostSchema } from 'src/schemas/post.schema';
 import { FacebookPostService } from './services/facebook-post.service';
+import { FacebookStrategy } from 'src/facebook.strategy';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'Page', schema: PageSchema }]),
   MongooseModule.forFeature([{ name: 'Post', schema: PostSchema }]), HttpModule],
   controllers: [FacebookController],
-  providers: [FacebookPageService, FacebookPostService],
+  providers: [FacebookPageService, FacebookPostService, FacebookStrategy],
 })
 export class FacebookModule { }
