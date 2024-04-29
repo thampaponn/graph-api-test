@@ -6,6 +6,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post } from 'src/schemas/post.schema';
 import { FacebookPostQuery } from '../dto/facebook-post.dto';
+import { access } from 'fs';
+import { FacebookPostDate } from '../dto/facebook-post-date.dto';
 
 @Injectable()
 export class FacebookPostService {
@@ -27,15 +29,21 @@ export class FacebookPostService {
         while (url) {
             const axiosResponse = await axios.get(url, {
                 params: {
-                    fields: 'id,created_time,message,attachments,reactions,comments',
+                    fields: 'id,created_time,message,attachments,comments',
                     access_token: query.accessToken,
                     limit: 100
                 }
             });
-
             const data = axiosResponse.data;
-            const result = data.data
+            const result = data.data;
             for (const post of result) {
+                let reactionUrl = `https://graph.facebook.com/${post.id}/insights/post_reactions_by_type_total`;
+                const axiosResponse = await axios.get(reactionUrl, {
+                    params: {
+                        access_token: query.accessToken,
+                    }
+                })
+                const reactionData = axiosResponse.data;
                 let type = 'caption';
 
                 if (post.attachments && post.attachments.data.length > 0) {
@@ -47,23 +55,27 @@ export class FacebookPostService {
                         type = 'photo';
                     }
                 }
-                const reactionCounts = {};
-                if (post.reactions && post.reactions.data.length > 0) {
-                    for (const reaction of post.reactions.data) {
-                        reactionCounts[reaction.type] = (reactionCounts[reaction.type] || 0) + 1;
-                    }
-                }
 
                 post.pageId = query.pageId;
-                post.postId = post.id
+                post.postId = post.id;
                 post.postType = type;
-                post.reactions = reactionCounts;
+                post.reactions = reactionData.data[0].values[0].value;
             }
             allPosts = allPosts.concat(result);
-
             url = data.paging && data.paging.next ? data.paging.next : null;
-        } while (url);
+        }
 
         return allPosts;
     }
+
+    async findPostByDate(query: FacebookPostDate) {
+        return await this.postModel.find({
+            pageId: { $in: query.pageId },
+            created_time: {
+                $gte: query.startDate,
+                $lt: query.endDate
+            }
+        });
+    }
+
 }

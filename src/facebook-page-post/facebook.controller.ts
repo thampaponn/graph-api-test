@@ -4,8 +4,9 @@ import { ApiTags } from '@nestjs/swagger';
 import { FacebookPageQuery } from './dto/facebook-page.dto';
 import { FacebookPostService } from './services/facebook-post.service';
 import { FacebookPostQuery } from './dto/facebook-post.dto';
+import { FacebookPostDate } from './dto/facebook-post-date.dto';
 
-@ApiTags('facebook-insight')
+@ApiTags('facebook-page-post')
 @Controller('')
 export class FacebookController {
   constructor(
@@ -41,5 +42,10 @@ export class FacebookController {
   @Post('save-post-to-db')
   async savePost(@Query() facebookPageQuery: FacebookPageQuery) {
     return this.facebookPostService.savePost(facebookPageQuery);
+  }
+
+  @Get()
+  async findPostByDate(@Query() facebookPostDate: FacebookPostDate) {
+    return this.facebookPostService.findPostByDate(facebookPostDate);
   }
 }

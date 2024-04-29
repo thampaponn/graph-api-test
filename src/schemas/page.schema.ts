@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, SchemaType } from 'mongoose';
-import { ILocation } from 'src/facebook/entities/facebook-page-post.interface';
+import { ILocation } from 'src/facebook-page-post/entities/facebook-page-post.interface';
 
 @Schema({ timestamps: true, versionKey: false})
 export class Page {
