@@ -55,6 +55,7 @@ export class FacebookPostService {
                 }
 
                 post.pageId = query.pageId;
+                post.postId = post.id
                 post.postType = type;
                 post.reactions = reactionCounts;
             }
