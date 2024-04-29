@@ -44,22 +44,28 @@ export class FacebookPostService {
                     }
                 })
                 const reactionData = axiosResponse.data;
+                let clickedUrl = `https://graph.facebook.com/${post.id}/insights/post_clicks`;
+                const clickedResponse = await axios.get(clickedUrl, {
+                    params: {
+                        access_token: query.accessToken,
+                    }
+                });
+                const clickedData = clickedResponse.data;
+
                 let type = 'caption';
-
                 if (post.attachments && post.attachments.data.length > 0) {
-                    const attachment = post.attachments.data[0];
-
+                    const attachment = post.attachments.data[0].media ? post.attachments.data[0].media : post.attachments.data[0].subattachments.data[0].media;
                     if (attachment.media && attachment.media.source) {
                         type = 'video';
                     } else if (attachment.media && attachment.media.image && attachment.media.image.src) {
                         type = 'photo';
                     }
                 }
-
                 post.pageId = query.pageId;
                 post.postId = post.id;
                 post.postType = type;
                 post.reactions = reactionData.data[0].values[0].value;
+                post.postClicked = clickedData.data[0].values[0].value;
             }
             allPosts = allPosts.concat(result);
             url = data.paging && data.paging.next ? data.paging.next : null;

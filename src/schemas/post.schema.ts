@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
-@Schema({ timestamps: true, versionKey: false})
+@Schema({ timestamps: true, versionKey: false })
 export class Post {
     @Prop({ type: String })
     pageId: string;
@@ -25,6 +25,9 @@ export class Post {
 
     @Prop({ type: Object })
     comments?: object;
+
+    @Prop({ type: Number })
+    postClicked?: number;
 }
 
 export type PostDocument = Post & Document;

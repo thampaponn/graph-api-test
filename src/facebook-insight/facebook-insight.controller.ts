@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { FacebookInsightService } from './facebook-insight.service';
 import { CreateFacebookInsightDto } from './dto/create-facebook-insight.dto';
 import { UpdateFacebookInsightDto } from './dto/update-facebook-insight.dto';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('facebook-insight')
+@ApiTags('facebook-insight')
+@Controller('')
 export class FacebookInsightController {
   constructor(private readonly facebookInsightService: FacebookInsightService) {}
 
