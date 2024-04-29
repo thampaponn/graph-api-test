@@ -19,7 +19,6 @@ export class FacebookPostService {
 
     async savePost(page: FacebookPageQuery) {
         const postsInfo = await this.getFacebookPagePosts(page);
-        console.log(postsInfo);
         return await this.postModel.insertMany(postsInfo);
     }
 
