@@ -17,21 +17,13 @@ export class FacebookPostService {
 
     async savePost(page: FacebookPageQuery) {
         const postsInfo = await this.getFacebookPagePosts(page);
-        const pageId = page.pageId;
-        const postId = postsInfo.map(post => post.id);
-        const message = postsInfo.map(post => post.message);
-        const created_time = postsInfo.map(post => post.created_time);
-        const attachments = postsInfo.map(post => post.attachments);
-        const reactions = postsInfo.map(post => post.reactions);
-        const comments = postsInfo.map(post => post.comments);
         console.log(postsInfo);
         return await this.postModel.insertMany(postsInfo);
     }
-// , attachments, reactions, comments
+
     async getFacebookPagePosts(query: FacebookPageQuery) {
         let allPosts = [];
         let url = `https://graph.facebook.com/${query.pageId}/posts`;
-
         while (url) {
             const axiosResponse = await axios.get(url, {
                 params: {
@@ -42,32 +34,35 @@ export class FacebookPostService {
             });
 
             const data = axiosResponse.data;
-            allPosts = allPosts.concat(data.data);
+            const result = data.data
+            for (const post of result) {
+                let type = 'caption';
 
-            // check if next is null or not
+                if (post.attachments && post.attachments.data.length > 0) {
+                    const attachment = post.attachments.data[0];
+
+                    if (attachment.media && attachment.media.source) {
+                        type = 'video';
+                    } else if (attachment.media && attachment.media.image && attachment.media.image.src) {
+                        type = 'photo';
+                    }
+                }
+                const reactionCounts = {};
+                if (post.reactions && post.reactions.data.length > 0) {
+                    for (const reaction of post.reactions.data) {
+                        reactionCounts[reaction.type] = (reactionCounts[reaction.type] || 0) + 1;
+                    }
+                }
+
+                post.pageId = query.pageId;
+                post.postType = type;
+                post.reactions = reactionCounts;
+            }
+            allPosts = allPosts.concat(result);
+
             url = data.paging && data.paging.next ? data.paging.next : null;
         } while (url);
 
         return allPosts;
-    }
-
-    async getPostType(query: FacebookPostQuery) {
-        const axiosResponse = await axios.get(`https://graph.facebook.com/${query.postId}`, {
-            params: {
-                fields: 'attachments',
-                access_token: query.accessToken
-            }
-        });
-
-        let type = axiosResponse.data.attachments;
-        if (type.data[0].media.source) {
-            type = 'video';
-        } else if (type.data[0].media.image.src) {
-            type = 'photo'
-        } else {
-            type = 'caption';
-        }
-        console.log(type);
-        return type;
     }
 }

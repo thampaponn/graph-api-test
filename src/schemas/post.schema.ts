@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { FacebookPostType, FacebookReactionType } from "src/facebook/entities/facebook-page-post.interface";
 
 @Schema({ timestamps: true, versionKey: false})
 export class Post {
@@ -7,10 +6,10 @@ export class Post {
     pageId: string;
 
     @Prop({ type: String, index: true })
-    id: string;
+    postId: string;
 
-    // @Prop({ type: String, index: true })
-    // postType: FacebookPostType;
+    @Prop({ type: String, index: true })
+    postType: string;
 
     @Prop({ type: String })
     message?: string;
