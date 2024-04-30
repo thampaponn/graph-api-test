@@ -85,4 +85,14 @@ export class FacebookPostService {
     async getAllPostsId(pageId: string) {
         return await this.postModel.find({ pageId: pageId });
     }
+
+    async updatePagePosts(query: FacebookPageQuery) {
+        await this.postModel.deleteMany({ pageId: query.pageId });
+        return await this.savePost(query);
+    }
+
+    async deleteOnePost(pageId: string) {
+        await this.postModel.deleteOne({ pageId: pageId });
+        return `Deleted post with postId: ${pageId} successfully`;
+    }
 }

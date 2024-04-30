@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Delete, Query } from '@nestjs/common';
 import { FacebookPageService } from './services/facebook-page.service';
 import { ApiTags } from '@nestjs/swagger';
 import { FacebookPageQuery } from './dto/facebook-page.dto';
@@ -24,20 +24,21 @@ export class FacebookController {
     return this.facebookPageService.savePage(FacebookPageQuery);
   }
 
+  @Patch('/:pageId')
+  async updateFacebookPage(@Query() facebookPageQuery: FacebookPageQuery) {
+    return this.facebookPageService.updatePage(facebookPageQuery);
+  }
+
+  @Get('/:pageId')
+  async getFacebookPageById(@Param('pageId') pageId: string) {
+    return this.facebookPageService.findById(pageId);
+  }
+
   @Get('get-all-pages')
   async getAllPages() {
     return this.facebookPageService.getAllPages();
   }
 
-  @Get('/:pageId')
-  async getFacebookPage(@Param('pageId') pageId: string) {
-    return this.facebookPageService.findById(pageId);
-  }
-
-  @Patch('/:pageId')
-  async updateFacebookPage(@Query() facebookPageQuery: FacebookPageQuery) {
-    return this.facebookPageService.updatePage(facebookPageQuery);
-  }
 
   @Delete('/:pageId')
   async deleteFacebookPage(@Param('pageId') pageId: string) {
@@ -49,6 +50,11 @@ export class FacebookController {
     return this.facebookPostService.savePost(facebookPageQuery);
   }
 
+  @Patch('/:pageId/posts')
+  async updatePosts(@Query() facebookPageQuery: FacebookPageQuery) {
+    return this.facebookPostService.updatePagePosts(facebookPageQuery);
+  }
+
   @Get('/:pageId/posts')
   async getAllPostsById(@Param('pageId') pageId: string) {
     return this.facebookPostService.getAllPostsId(pageId);
@@ -57,5 +63,11 @@ export class FacebookController {
   @Get('/:pageId/date')
   async findPostByDate(@Query() facebookPostDate: FacebookPostDate) {
     return this.facebookPostService.findPostByDate(facebookPostDate);
+  }
+
+
+  @Delete('/:postId')
+  async deleteOnePost(@Param('postId') postId: string) {
+    return this.facebookPostService.deleteOnePost(postId);
   }
 }
