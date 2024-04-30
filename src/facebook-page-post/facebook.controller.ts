@@ -9,7 +9,7 @@ import { FacebookInsightQuery } from './dto/facebook-insight.dto';
 import { FacebookInsightService } from './services/facebook-insight.service';
 
 @ApiTags('facebook-page-post-insight')
-@Controller('')
+@Controller()
 export class FacebookController {
   constructor(
     private readonly facebookPageService: FacebookPageService,
