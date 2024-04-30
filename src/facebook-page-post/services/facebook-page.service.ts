@@ -5,6 +5,7 @@ import { HttpService } from "@nestjs/axios";
 import { InjectModel } from '@nestjs/mongoose';
 import { Page } from 'src/schemas/page.schema';
 import { Model } from 'mongoose';
+import { access } from 'fs';
 
 @Injectable()
 export class FacebookPageService {
@@ -13,7 +14,17 @@ export class FacebookPageService {
     protected readonly httpService: HttpService,
     @InjectModel(Page.name) private pageModel: Model<Page>,
   ) { }
-
+  //Token
+  async getAccessToken(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}`, {
+      params: {
+        fields: 'access_token',
+        access_token: query.accessToken
+      }
+    })
+    const facebookResponse = axiosResponse.data
+    return facebookResponse
+  }
   //Post
   async savePage(query: FacebookPageQuery) {
     const pageInfo = await this.getFacebookPage(query)

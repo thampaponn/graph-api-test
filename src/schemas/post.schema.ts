@@ -2,10 +2,10 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
 @Schema({ timestamps: true, versionKey: false })
 export class Post {
-    @Prop({ type: String })
+    @Prop({ type: String, unique: true, index: true })
     pageId: string;
 
-    @Prop({ type: String, index: true })
+    @Prop({ type: String, unique: true, index: true })
     postId: string;
 
     @Prop({ type: String, index: true })
@@ -14,7 +14,7 @@ export class Post {
     @Prop({ type: String })
     message?: string;
 
-    @Prop({ type: String })
+    @Prop({ type: String, index: true })
     created_time?: string;
 
     @Prop({ type: Object })

@@ -6,7 +6,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post } from 'src/schemas/post.schema';
 import { FacebookPostQuery } from '../dto/facebook-post.dto';
-import { access } from 'fs';
 import { FacebookPostDate } from '../dto/facebook-post-date.dto';
 
 @Injectable()
@@ -83,4 +82,7 @@ export class FacebookPostService {
         });
     }
 
+    async getAllPostsId(pageId: string) {
+        return await this.postModel.find({ pageId: pageId });
+    }
 }

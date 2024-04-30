@@ -6,13 +6,18 @@ import { FacebookPostService } from './services/facebook-post.service';
 import { FacebookPostQuery } from './dto/facebook-post.dto';
 import { FacebookPostDate } from './dto/facebook-post-date.dto';
 
-@ApiTags('facebook-page-post')
+@ApiTags('facebook-page-post-insight')
 @Controller('')
 export class FacebookController {
   constructor(
     private readonly facebookPageService: FacebookPageService,
     private readonly facebookPostService: FacebookPostService,
   ) { }
+
+  @Get('get-access-token')
+  async getAccessToken(@Query() facebookPageQuery: FacebookPageQuery) {
+    return this.facebookPageService.getAccessToken(facebookPageQuery);
+  }
 
   @Post('save-page-to-db')
   async savePage(@Query() FacebookPageQuery: FacebookPageQuery) {
@@ -44,7 +49,12 @@ export class FacebookController {
     return this.facebookPostService.savePost(facebookPageQuery);
   }
 
-  @Get()
+  @Get('/:pageId/posts')
+  async getAllPostsById(@Param('pageId') pageId: string) {
+    return this.facebookPostService.getAllPostsId(pageId);
+  }
+
+  @Get('/:pageId/date')
   async findPostByDate(@Query() facebookPostDate: FacebookPostDate) {
     return this.facebookPostService.findPostByDate(facebookPostDate);
   }

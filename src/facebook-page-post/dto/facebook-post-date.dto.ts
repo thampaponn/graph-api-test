@@ -1,26 +1,21 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsOptional, IsString } from "class-validator";
+import { IsArray, IsDateString, IsString } from "class-validator";
 import { FacebookCommonQuery } from "src/common/common.dto";
 
-export class FacebookPostDate implements FacebookCommonQuery {
-    @ApiProperty({ required: false })
-    @IsString()
-    @IsOptional()
+export class FacebookPostDate {
+    @ApiProperty({ required: true })
+    @IsArray()
     pageId: string[];
 
-    @ApiProperty()
-    @IsString()
-    accessToken: string;
-
     @ApiProperty({
-        example: '2021-09-24'
+        example: '2016-01-01'
     })
-    @IsString()
+    @IsDateString()
     startDate: string;
 
     @ApiProperty({
-        example: '2021-09-30'
+        example: '2016-12-31'
     })
-    @IsString()
+    @IsDateString()
     endDate: string;
 }
