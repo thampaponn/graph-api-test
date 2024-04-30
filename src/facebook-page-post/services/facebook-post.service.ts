@@ -18,6 +18,7 @@ export class FacebookPostService {
 
     async savePost(page: FacebookPageQuery) {
         const postsInfo = await this.getFacebookPagePosts(page);
+        this.logger.debug('Posts info: ' + postsInfo)
         return await this.postModel.insertMany(postsInfo);
     }
 
@@ -68,11 +69,12 @@ export class FacebookPostService {
             allPosts = allPosts.concat(result);
             url = data.paging && data.paging.next ? data.paging.next : null;
         }
-
+        this.logger.debug('Posts info being return to another function: ' + allPosts)
         return allPosts;
     }
 
     async findPostByDate(query: FacebookPostDate) {
+        this.logger.debug('Find all posts between 2 times: ' + query.pageId + ' ' + query.startDate + ' ' + query.endDate)
         return await this.postModel.find({
             pageId: { $in: query.pageId },
             created_time: {
@@ -82,17 +84,21 @@ export class FacebookPostService {
         });
     }
 
-    async getAllPostsId(pageId: string) {
-        return await this.postModel.find({ pageId: pageId });
+    async getAllPostsId(query: FacebookPageQuery) {
+        const posts = await this.postModel.find({ pageId: query.pageId });
+        this.logger.debug('Posts info: ' + posts)
+        return posts;
     }
 
     async updatePagePosts(query: FacebookPageQuery) {
         await this.postModel.deleteMany({ pageId: query.pageId });
+        this.logger.debug('Post being updated: ' + query.pageId)
         return await this.savePost(query);
     }
 
-    async deleteOnePost(pageId: string) {
-        await this.postModel.deleteOne({ pageId: pageId });
-        return `Deleted post with postId: ${pageId} successfully`;
+    async deleteOnePost(query: FacebookPostQuery) {
+        await this.postModel.findOneAndDelete({ postId: query.postId });
+        this.logger.debug('Post being deleted: ' + query.postId)
+        return `Deleted post with postId: ${query.postId} successfully`;
     }
 }

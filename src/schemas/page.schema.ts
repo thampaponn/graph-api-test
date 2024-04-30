@@ -4,7 +4,7 @@ import { ILocation } from 'src/facebook-page-post/entities/facebook-page-post.in
 
 @Schema({ timestamps: true, versionKey: false})
 export class Page {
-    @Prop({ type: String, unique: true, index: true })
+    @Prop({ type: String, index: true })
     pageId: string;
 
     @Prop({ type: String, index: true })

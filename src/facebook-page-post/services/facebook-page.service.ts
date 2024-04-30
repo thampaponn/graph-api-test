@@ -23,6 +23,7 @@ export class FacebookPageService {
       }
     })
     const facebookResponse = axiosResponse.data
+    this.logger.debug('Access Token: ' + facebookResponse)
     return facebookResponse
   }
   //Post
@@ -39,7 +40,7 @@ export class FacebookPageService {
     const pagePostCount = (await this.getFacebookPagePostCount(query)).length
 
     const result = { pageId: pageId, name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location, likes: pageLikes.todayLikes, postCount: pagePostCount }
-    this.logger.log(result)
+    this.logger.debug('Page info: ' + result)
     return await this.pageModel.create(result)
   }
 
@@ -59,31 +60,35 @@ export class FacebookPageService {
     const pageLikes = await this.getFacebookPageLikes(query)
     const pagePostCount = (await this.getFacebookPagePostCount(query)).length
     const result = { name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location, likes: pageLikes.todayLikes, postCount: pagePostCount }
-    this.logger.log(result)
+    this.logger.debug('Updated page info: ' + result)
     await this.pageModel.updateOne({ pageId: query.pageId }, result)
     return `Page with id ${query.pageId} updated successfully`
   }
 
   //Delete
-  async deletePage(pageId: string) {
-    const page = await this.pageModel.findOne({ pageId: pageId })
+  async deletePage(query: FacebookPageQuery) {
+    const page = await this.pageModel.findOne({ pageId: query.pageId })
     if (!page) {
       throw new HttpException('Page not found', 404)
     }
-    await this.pageModel.deleteOne({ pageId: pageId })
-    return `Page with id ${pageId} deleted successfully`
+    await this.pageModel.deleteOne({ pageId: query.pageId })
+    this.logger.debug(query.pageId + ' deleted successfully')
+    return `Page with id ${query.pageId} deleted successfully`
   }
 
   //Get
   async getAllPages() {
-    return await this.pageModel.find()
+    const pages = await this.pageModel.find()
+    this.logger.debug(pages + 'info fetched successfully')
+    return pages
   }
 
-  async findById(pageId: string) {
-    const page = await this.pageModel.findOne({ pageId })
+  async findById(query: FacebookPageQuery) {
+    const page = await this.pageModel.findOne({ pageId: query.pageId })
     if (!page) {
       throw new HttpException('Page not found', 404)
     }
+    this.logger.debug('Find by pageId: ' + page)
     return page
   }
 
@@ -95,6 +100,7 @@ export class FacebookPageService {
       }
     })
     const location = axiosResponse.data
+    this.logger.debug('Location: ' + location)
     return location
   }
 
@@ -106,6 +112,7 @@ export class FacebookPageService {
       }
     })
     const emails = axiosResponse.data
+    this.logger.debug('Emails: ' + emails)
     return emails
   }
 
@@ -117,6 +124,7 @@ export class FacebookPageService {
       }
     })
     const bio = axiosResponse.data
+    this.logger.debug('Bio: ' + bio)
     return bio
   }
 
@@ -128,6 +136,7 @@ export class FacebookPageService {
       }
     })
     const description = axiosResponse.data
+    this.logger.debug('Description: ' + description)
     return description
   }
 
@@ -139,6 +148,7 @@ export class FacebookPageService {
       }
     })
     const singleLineAddress = axiosResponse.data
+    this.logger.debug('Single Line Address: ' + singleLineAddress)
     return singleLineAddress
   }
 
@@ -149,6 +159,7 @@ export class FacebookPageService {
       }
     })
     const events = axiosResponse.data
+    this.logger.debug('Events: ' + events)
     return events
   }
 
@@ -159,6 +170,7 @@ export class FacebookPageService {
       }
     })
     const albums = axiosResponse.data
+    this.logger.debug('Albums: ' + albums)
     return albums
   }
 
@@ -173,6 +185,7 @@ export class FacebookPageService {
     const yesterdayLikes = facebookInsights.data[0].values[0].value
     const likesChanged = facebookInsights.data[0].values[1].value - facebookInsights.data[0].values[0].value
     const result = { yesterdayLikes, todayLikes, likesChanged }
+    this.logger.debug('Likes: ' + result)
     return result
   }
 
@@ -195,7 +208,7 @@ export class FacebookPageService {
       // check if next is null or not
       url = data.paging && data.paging.next ? data.paging.next : null;
     } while (url);
-
+    this.logger.debug('All posts: ' + allPosts)
     return allPosts;
   }
 
@@ -206,18 +219,8 @@ export class FacebookPageService {
       }
     })
     const pageInformation = axiosResponse.data
+    this.logger.debug('Page Information: ' + pageInformation)
     return pageInformation
-  }
-
-  async getFacebookPageAccessToken(pageId: string, accessToken: string) {
-    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${pageId}`, {
-      params: {
-        fields: 'access_token',
-        access_token: accessToken
-      }
-    })
-    const facebookResponse = axiosResponse.data
-    return facebookResponse
   }
 
   async getFacebookPostComments(postId: string, accessToken: string) {
@@ -227,6 +230,7 @@ export class FacebookPageService {
       }
     })
     const facebookResponse = axiosResponse.data
+    this.logger.debug('Comments: ' + facebookResponse)
     return facebookResponse
   }
 
@@ -237,6 +241,7 @@ export class FacebookPageService {
       }
     })
     const facebookResponse = axiosResponse.data
+    this.logger.debug('Posts Likes: ' + facebookResponse)
     return facebookResponse
   }
 
@@ -259,7 +264,7 @@ export class FacebookPageService {
       // check if next is null or not
       url = data.paging && data.paging.next ? data.paging.next : null;
     } while (url);
-
+    this.logger.debug('All Reactions: ' + allReactions)
     return allReactions.length;
   }
 

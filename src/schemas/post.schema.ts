@@ -2,10 +2,10 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
 @Schema({ timestamps: true, versionKey: false })
 export class Post {
-    @Prop({ type: String, unique: true, index: true })
+    @Prop({ type: String, index: true })
     pageId: string;
 
-    @Prop({ type: String, unique: true, index: true })
+    @Prop({ type: String, index: true })
     postId: string;
 
     @Prop({ type: String, index: true })
