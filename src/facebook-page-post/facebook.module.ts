@@ -7,11 +7,12 @@ import { PageSchema } from 'src/schemas/page.schema';
 import { PostSchema } from 'src/schemas/post.schema';
 import { FacebookPostService } from './services/facebook-post.service';
 import { FacebookStrategy } from 'src/facebook.strategy';
+import { FacebookInsightService } from './services/facebook-insight.service';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'Page', schema: PageSchema }]),
   MongooseModule.forFeature([{ name: 'Post', schema: PostSchema }]), HttpModule],
   controllers: [FacebookController],
-  providers: [FacebookPageService, FacebookPostService, FacebookStrategy],
+  providers: [FacebookPageService, FacebookPostService, FacebookStrategy, FacebookInsightService],
 })
 export class FacebookModule { }

@@ -5,6 +5,8 @@ import { FacebookPageQuery } from './dto/facebook-page.dto';
 import { FacebookPostService } from './services/facebook-post.service';
 import { FacebookPostQuery } from './dto/facebook-post.dto';
 import { FacebookPostDate } from './dto/facebook-post-date.dto';
+import { FacebookInsightQuery } from './dto/facebook-insight.dto';
+import { FacebookInsightService } from './services/facebook-insight.service';
 
 @ApiTags('facebook-page-post-insight')
 @Controller('')
@@ -12,6 +14,7 @@ export class FacebookController {
   constructor(
     private readonly facebookPageService: FacebookPageService,
     private readonly facebookPostService: FacebookPostService,
+    private readonly facebookInsightService: FacebookInsightService
   ) { }
 
   @Get('get-access-token')
@@ -65,9 +68,13 @@ export class FacebookController {
     return this.facebookPostService.findPostByDate(facebookPostDate);
   }
 
-
   @Delete('/:postId')
   async deleteOnePost(@Param('postId') postId: string) {
     return this.facebookPostService.deleteOnePost(postId);
+  }
+
+  @Get('/insights')
+  async getFacebookInsights(@Query() query: FacebookInsightQuery) {    
+    return this.facebookInsightService.getFacebookInsights(query)
   }
 }

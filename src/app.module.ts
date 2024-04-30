@@ -6,11 +6,10 @@ import { FacebookModule } from './facebook-page-post/facebook.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
-import { FacebookInsightModule } from './facebook-insight/facebook-insight.module';
 
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), MongooseModule.forRoot('mongodb://127.0.0.1:27017/social-insights'), ScheduleModule.forRoot(), FacebookModule, AuthModule, FacebookInsightModule,],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), MongooseModule.forRoot('mongodb://127.0.0.1:27017/social-insights'), ScheduleModule.forRoot(), FacebookModule, AuthModule,],
   controllers: [AppController],
   providers: [AppService],
 })
