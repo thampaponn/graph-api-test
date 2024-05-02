@@ -84,8 +84,8 @@ export class FacebookController {
   }
 
   @Get('/page/insights')
-  async getFacebookInsights(@Query() query: FacebookInsightQuery) {
+  async getFacebookInsights(@Query() facebookInsightQuery: FacebookInsightQuery) {
     console.log('get page insights');
-    return this.facebookInsightService.getFacebookInsights(query)
+    return this.facebookInsightService.getFacebookInsights(facebookInsightQuery)
   }
 }
