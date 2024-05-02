@@ -1,11 +1,11 @@
 import { HttpService } from "@nestjs/axios";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { FacebookInsightQuery } from "../dto/facebook-insight.dto";
 import { IFacebookInsight, IFacebookInsightResponse,  } from "../entities/facebook-insight.interface";
 
 @Injectable()
 export class FacebookInsightService {
-
+  private readonly logger = new Logger(FacebookInsightService.name)
   constructor(
     protected readonly httpService: HttpService
   ){}
@@ -22,6 +22,7 @@ export class FacebookInsightService {
       }
     })
     const facebookInsights: IFacebookInsightResponse = axiosResponse.data
+    this.logger.debug('Facebook insights fetched: ' + facebookInsights)
     return facebookInsights
   }
 
