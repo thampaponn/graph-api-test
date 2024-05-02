@@ -10,9 +10,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get<ConfigService>(ConfigService);
   const config = new DocumentBuilder()
-    .setTitle('graph api test')
-    .setDescription('test')
-    .setVersion('1.0')
+    .setTitle('BearsurfX API Document')
+    .setDescription('APIs for BearsurfX')
+    .setVersion('0.1')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
