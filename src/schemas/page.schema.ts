@@ -26,9 +26,6 @@ export class Page {
     location?: ILocation;
 
     @Prop({ type: Number })
-    likes: number;
-
-    @Prop({ type: Number })
     postCount: number;
 }
 

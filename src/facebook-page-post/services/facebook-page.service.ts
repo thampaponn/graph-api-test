@@ -5,7 +5,6 @@ import { HttpService } from "@nestjs/axios";
 import { InjectModel } from '@nestjs/mongoose';
 import { Page } from 'src/schemas/page.schema';
 import { Model } from 'mongoose';
-import { access } from 'fs';
 
 @Injectable()
 export class FacebookPageService {
@@ -36,15 +35,14 @@ export class FacebookPageService {
     const pageBio = await this.getPageBio(query)
     const pageEmails = await this.getPageEmails(query)
     const pageLocation = await this.getPageLocation(query)
-    const pageLikes = await this.getFacebookPageLikes(query)
     const pagePostCount = (await this.getFacebookPagePostCount(query)).length
 
-    const result = { pageId: pageId, name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location, likes: pageLikes.todayLikes, postCount: pagePostCount }
+    const result = { pageId: pageId, name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location, postCount: pagePostCount }
     this.logger.debug('Page info: ' + result)
     return await this.pageModel.create(result)
   }
 
-  //Pacth
+  //Patch
   async updatePage(query: FacebookPageQuery) {
     const page = await this.pageModel.findOne({ pageId: query.pageId })
     if (!page) {
