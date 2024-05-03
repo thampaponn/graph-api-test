@@ -23,25 +23,25 @@ export class FacebookController {
     return this.facebookPageService.getAccessToken(facebookPageQuery);
   }
 
-  @Post('save-page-to-db')
+  @Post('/posts/save-page-to-db')
   async savePage(@Query() FacebookPageQuery: FacebookPageQuery) {
     console.log('save page to db');
     return this.facebookPageService.savePage(FacebookPageQuery);
   }
 
-  @Patch('/:pageId')
+  @Patch('/pages/:pageId')
   async updateFacebookPage(@Query() facebookPageQuery: FacebookPageQuery) {
     console.log('update page by id');
     return this.facebookPageService.updatePage(facebookPageQuery);
   }
 
-  @Get('/:pageId')
+  @Get('/pages/:pageId')
   async getFacebookPageById(@Query() facebookPageQuery: FacebookPageQuery) {
     console.log('get page by id');
     return this.facebookPageService.findById(facebookPageQuery);
   }
 
-  @Get()
+  @Get('/pages')
   async getAllPages() {
     console.log('get all pages');
     return this.facebookPageService.getAllPages();
@@ -53,31 +53,31 @@ export class FacebookController {
     return this.facebookPageService.deletePage(facebookPageQuery);
   }
 
-  @Post('save-post-to-db')
+  @Post('/posts/save-post-to-db')
   async savePost(@Query() facebookPageQuery: FacebookPageQuery) {
     console.log('save post to db');
     return this.facebookPostService.savePost(facebookPageQuery);
   }
 
-  @Patch('/:pageId/posts')
+  @Patch('/posts/:pageId')
   async updatePosts(@Query() facebookPageQuery: FacebookPageQuery) {
     console.log('update all posts');
     return this.facebookPostService.updatePagePosts(facebookPageQuery);
   }
 
-  @Get('/:pageId/posts')
+  @Get('/posts/:pageId')
   async getAllPostsById(@Query() facebookPageQuery: FacebookPageQuery) {
     console.log('get all posts by page id');
     return this.facebookPostService.getAllPostsId(facebookPageQuery);
   }
 
-  @Get('/:pageId/date')
+  @Get('/pages/:pageId/date')
   async findPostByDate(@Query() facebookPostDate: FacebookPostDate) {
     console.log('filter 2 post by date');
     return this.facebookPostService.findPostByDate(facebookPostDate);
   }
 
-  @Delete('/:postId')
+  @Delete('/posts/:postId')
   async deleteOnePost(@Query() facebookPostQuery: FacebookPostQuery) {
     console.log('delete one post by id');
     return this.facebookPostService.deleteOnePost(facebookPostQuery);

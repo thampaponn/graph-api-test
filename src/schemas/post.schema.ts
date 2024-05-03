@@ -23,8 +23,11 @@ export class Post {
     @Prop({ type: Object })
     reactions?: object;
 
-    @Prop({ type: Object })
-    comments?: object;
+    @Prop({ type: Number })
+    comments?: number;
+
+    @Prop({ type: Number })
+    shares?: number;
 
     @Prop({ type: Number })
     postClicked?: number;

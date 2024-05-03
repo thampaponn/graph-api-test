@@ -28,7 +28,7 @@ export class FacebookPostService {
         while (url) {
             const axiosResponse = await axios.get(url, {
                 params: {
-                    fields: 'id,created_time,message,attachments,comments',
+                    fields: 'id,created_time,message,attachments,comments,shares',
                     access_token: query.accessToken,
                     limit: 100
                 }
@@ -64,6 +64,8 @@ export class FacebookPostService {
                 post.postId = post.id;
                 post.postType = type;
                 post.reactions = reactionData.data[0].values[0].value;
+                post.comments = post.comments ? post.comments.data.length : 0;
+                post.shares = post.shares ? post.shares.count : 0;
                 post.postClicked = clickedData.data[0].values[0].value;
             }
             allPosts = allPosts.concat(result);
