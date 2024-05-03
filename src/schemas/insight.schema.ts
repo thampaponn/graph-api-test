@@ -12,14 +12,23 @@ export class Insight {
     @Prop({ type: String, index: true })
     pageFans: string;
 
-    @Prop({ type: Number, index: true })
-    name: number;
+    @Prop({ type: Number })
+    postsCount: number;
+
+    @Prop({ type: Object })
+    postsTypeTotal: object;
+
+    @Prop({ type: Number })
+    totalReactions: number;
+
+    @Prop({ type: Number })
+    totalComments: number;
+
+    @Prop({ type: Number })
+    totalShares: number;
 
     @Prop({ type: String, index: true })
     created_time: string;
-
-    @Prop({ type: String })
-    values: string[];
 }
 
 export type InsightDocument = Insight & Document;

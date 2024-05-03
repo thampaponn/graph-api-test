@@ -35,9 +35,8 @@ export class FacebookPageService {
     const pageBio = await this.getPageBio(query)
     const pageEmails = await this.getPageEmails(query)
     const pageLocation = await this.getPageLocation(query)
-    const pagePostCount = (await this.getFacebookPagePostCount(query)).length
 
-    const result = { pageId: pageId, name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location, postCount: pagePostCount }
+    const result = { pageId: pageId, name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location }
     this.logger.debug('Page info: ' + result)
     return await this.pageModel.create(result)
   }
@@ -55,9 +54,7 @@ export class FacebookPageService {
     const pageBio = await this.getPageBio(query)
     const pageEmails = await this.getPageEmails(query)
     const pageLocation = await this.getPageLocation(query)
-    const pageLikes = await this.getFacebookPageLikes(query)
-    const pagePostCount = (await this.getFacebookPagePostCount(query)).length
-    const result = { name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location, likes: pageLikes.todayLikes, postCount: pagePostCount }
+    const result = { name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location }
     this.logger.debug('Updated page info: ' + result)
     await this.pageModel.updateOne({ pageId: query.pageId }, result)
     return `Page with id ${query.pageId} updated successfully`
@@ -170,44 +167,6 @@ export class FacebookPageService {
     const albums = axiosResponse.data
     this.logger.debug('Albums: ' + albums)
     return albums
-  }
-
-  async getFacebookPageLikes(query: FacebookPageQuery) {
-    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/insights/page_fans`, {
-      params: {
-        access_token: query.accessToken
-      }
-    })
-    const facebookInsights = axiosResponse.data
-    const todayLikes = facebookInsights.data[0].values[1].value
-    const yesterdayLikes = facebookInsights.data[0].values[0].value
-    const likesChanged = facebookInsights.data[0].values[1].value - facebookInsights.data[0].values[0].value
-    const result = { yesterdayLikes, todayLikes, likesChanged }
-    this.logger.debug('Likes: ' + result)
-    return result
-  }
-
-  async getFacebookPagePostCount(query: FacebookPageQuery) {
-    let allPosts = [];
-    let url = `https://graph.facebook.com/${query.pageId}/posts`;
-
-    while (url) {
-      const axiosResponse = await axios.get(url, {
-        params: {
-          fields: 'created_time,message,id',
-          access_token: query.accessToken,
-          limit: 100
-        }
-      });
-
-      const data = axiosResponse.data;
-      allPosts = allPosts.concat(data.data);
-
-      // check if next is null or not
-      url = data.paging && data.paging.next ? data.paging.next : null;
-    } while (url);
-    this.logger.debug('All posts: ' + allPosts)
-    return allPosts;
   }
 
   async getFacebookPage(query: FacebookPageQuery) {

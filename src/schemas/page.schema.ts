@@ -24,9 +24,6 @@ export class Page {
 
     @Prop({ type: Object })
     location?: ILocation;
-
-    @Prop({ type: Number })
-    postCount: number;
 }
 
 export type PageDocument = Page & Document;

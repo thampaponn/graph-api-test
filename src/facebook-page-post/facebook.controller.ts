@@ -88,4 +88,10 @@ export class FacebookController {
     console.log('get page insights');
     return this.facebookInsightService.getFacebookInsights(facebookInsightQuery)
   }
+
+  @Post('/page/insights')
+  async saveInsight(@Query() facebookPageQuery: FacebookPageQuery) {
+    console.log('save insight');
+    return this.facebookInsightService.saveInsight(facebookPageQuery);
+  }
 }

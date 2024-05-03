@@ -18,7 +18,7 @@ export class FacebookPostService {
 
     async savePost(page: FacebookPageQuery) {
         const postsInfo = await this.getFacebookPagePosts(page);
-        this.logger.debug('Posts info: ' + postsInfo)
+        this.logger.debug('Posts info: ' + postsInfo.length)
         return await this.postModel.insertMany(postsInfo);
     }
 
@@ -28,7 +28,7 @@ export class FacebookPostService {
         while (url) {
             const axiosResponse = await axios.get(url, {
                 params: {
-                    fields: 'id,created_time,message,attachments,comments,shares',
+                    fields: 'id,created_time,message,attachments{media,subattachments},comments,shares',
                     access_token: query.accessToken,
                     limit: 100
                 }
@@ -36,44 +36,52 @@ export class FacebookPostService {
             const data = axiosResponse.data;
             const result = data.data;
             for (const post of result) {
-                let reactionUrl = `https://graph.facebook.com/${post.id}/insights/post_reactions_by_type_total`;
-                const axiosResponse = await axios.get(reactionUrl, {
-                    params: {
-                        access_token: query.accessToken,
-                    }
-                })
-                const reactionData = axiosResponse.data;
-                let clickedUrl = `https://graph.facebook.com/${post.id}/insights/post_clicks`;
-                const clickedResponse = await axios.get(clickedUrl, {
-                    params: {
-                        access_token: query.accessToken,
-                    }
-                });
-                const clickedData = clickedResponse.data;
-
                 let type = 'caption';
                 if (post.attachments && post.attachments.data.length > 0) {
-                    const attachment = post.attachments.data[0].media ? post.attachments.data[0].media : post.attachments.data[0].subattachments.data[0].media;
-                    if (attachment.media && attachment.media.source) {
-                        type = 'video';
-                    } else if (attachment.media && attachment.media.image && attachment.media.image.src) {
-                        type = 'photo';
+                    for (let attachmentData of post.attachments.data) {
+                        let media = attachmentData.media || (attachmentData.subattachments ? attachmentData.subattachments.data[0].media : null);
+                        if (media) {
+                            if (media.source) {
+                                type = 'video';
+                                break;
+                            } else if (media.image && media.image.src) {
+                                type = 'photo';
+                                break;
+                            }
+                        }
                     }
                 }
                 post.pageId = query.pageId;
                 post.postId = post.id;
                 post.postType = type;
-                post.reactions = reactionData.data[0].values[0].value;
+                post.reactions = await this.getPostReactions(post.id, query.accessToken);
                 post.comments = post.comments ? post.comments.data.length : 0;
                 post.shares = post.shares ? post.shares.count : 0;
-                post.postClicked = clickedData.data[0].values[0].value;
+                post.postClicked = await this.getPostClicks(post.id, query.accessToken);
             }
             allPosts = allPosts.concat(result);
             url = data.paging && data.paging.next ? data.paging.next : null;
         }
-        this.logger.debug('Posts info being return to another function: ' + allPosts)
+        this.logger.debug('Posts info being return to another function: ' + JSON.stringify(allPosts));
         return allPosts;
     }
+
+    async getPostReactions(postId: string, accessToken: string) {
+        const url = `https://graph.facebook.com/${postId}/insights/post_reactions_by_type_total`;
+        const response = await axios.get(url, {
+            params: { access_token: accessToken }
+        });
+        return response.data.data[0].values[0].value;
+    }
+
+    async getPostClicks(postId: string, accessToken: string) {
+        const url = `https://graph.facebook.com/${postId}/insights/post_clicks`;
+        const response = await axios.get(url, {
+            params: { access_token: accessToken }
+        });
+        return response.data.data[0].values[0].value;
+    }
+
 
     async findPostByDate(query: FacebookPostDate) {
         this.logger.debug('Find all posts between 2 times: ' + query.pageId + ' ' + query.startDate + ' ' + query.endDate)
