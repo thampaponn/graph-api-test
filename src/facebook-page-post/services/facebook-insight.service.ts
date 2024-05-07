@@ -178,6 +178,22 @@ export class FacebookInsightService {
     return postVideoViews60s.data
   }
 
+  async getLinksClicks(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/insights`, {
+      params: {
+        metric: 'page_consumptions_by_consumption_type',
+        // date_preset: query?.datePreset,
+        period: 'day',
+        // since: query?.since,
+        // until: query?.until,
+        access_token: query?.accessToken
+      }
+    })
+    const linksClicks = axiosResponse.data
+    this.logger.debug('Facebook insights fetched: ' + linksClicks)
+    return linksClicks.data[0]
+  }
+
   async getFacebookPagePostCount(query: FacebookPageQuery) {
     return (await this.postModel.find({ pageId: query.pageId }))
   }
@@ -242,9 +258,10 @@ export class FacebookInsightService {
     const postVideoCompletedViews = await this.getPostVideoCompletedViews(query);
     const postVideoAvgTime = await this.getPostVideoAvgTime(query);
     const postVideoViews60s = await this.getPostVideoViews60s(query);
+    const linkClicks = await this.getLinksClicks(query);
 
-    const result = { pageId: query.pageId, pageFans: likesCount.todayLikes, pageVideoViewTime, pageVideoViewsDay, pageVideoViewsWeek, pageVideoViewsDay28, postVideoViews15s, postVideoCompletedViews, postVideoAvgTime, postVideoViews60s }
-    this.logger.debug('Insight info: ' + likesCount.todayLikes + ', Page video view time: ' + JSON.stringify(pageVideoViewTime) + ', Page video views day: ' + JSON.stringify(pageVideoViewsDay) + ', Page video views week: ' + JSON.stringify(pageVideoViewsWeek) + ', Page video views day 28: ' + JSON.stringify(pageVideoViewsDay28) + ', Post video views 15s: ' + JSON.stringify(postVideoViews15s) + ', Post video completed views: ' + JSON.stringify(postVideoCompletedViews) + ', Post video avg time: ' + JSON.stringify(postVideoAvgTime) + ', Post video views 60s: ' + JSON.stringify(postVideoViews60s))
+    const result = { pageId: query.pageId, pageFans: likesCount.todayLikes, pageVideoViewTime, pageVideoViewsDay, pageVideoViewsWeek, pageVideoViewsDay28, postVideoViews15s, postVideoCompletedViews, postVideoAvgTime, postVideoViews60s, linkClicks }
+    this.logger.debug('Insight info: ' + likesCount.todayLikes + ', Page video view time: ' + JSON.stringify(pageVideoViewTime) + ', Page video views day: ' + JSON.stringify(pageVideoViewsDay) + ', Page video views week: ' + JSON.stringify(pageVideoViewsWeek) + ', Page video views day 28: ' + JSON.stringify(pageVideoViewsDay28) + ', Post video views 15s: ' + JSON.stringify(postVideoViews15s) + ', Post video completed views: ' + JSON.stringify(postVideoCompletedViews) + ', Post video avg time: ' + JSON.stringify(postVideoAvgTime) + ', Post video views 60s: ' + JSON.stringify(postVideoViews60s) + ', Link clicks: ' + JSON.stringify(linkClicks))
     return await this.insightModel.create(result);
   }
 }

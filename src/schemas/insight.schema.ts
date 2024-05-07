@@ -55,6 +55,9 @@ export class Insight {
     @Prop({ type: Object })
     postVideoViews60s: object;
 
+    @Prop({ type: Object })
+    linkClicks: object;
+
     @Prop({ type: Number })
     engagementRate: number;
 

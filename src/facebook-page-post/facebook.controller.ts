@@ -47,7 +47,7 @@ export class FacebookController {
     return this.facebookPageService.getAllPages();
   }
 
-  @Delete('/page/:pageId')
+  @Delete('/pages/:pageId')
   async deleteFacebookPage(@Query() facebookPageQuery: FacebookPageQuery) {
     console.log('delete page by id');
     return this.facebookPageService.deletePage(facebookPageQuery);
@@ -71,7 +71,7 @@ export class FacebookController {
     return this.facebookPostService.getAllPostsId(facebookPageQuery);
   }
 
-  @Get('/pages/:pageId/date')
+  @Get('/posts/:pageId/date')
   async findPostByDate(@Query() facebookPostDate: FacebookPostDate) {
     console.log('filter 2 post by date');
     return this.facebookPostService.findPostByDate(facebookPostDate);
@@ -89,13 +89,13 @@ export class FacebookController {
   //   return this.facebookInsightService.getFacebookInsights(facebookInsightQuery)
   // }
 
-  @Post('/page/insights')
+  @Post('/pages/insights')
   async saveInsight(@Query() facebookPageQuery: FacebookPageQuery) {
     console.log('save insight');
     return this.facebookInsightService.saveInsight(facebookPageQuery);
   }
 
-  @Get('/page/insights/:pageId')
+  @Get('/pages/insights/:pageId')
   async getInsightById(@Query() facebookPageQuery: FacebookPageQuery) {
     console.log('get insight from posts database');
     return this.facebookInsightService.getPagePostsInsight(facebookPageQuery);
