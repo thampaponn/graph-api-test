@@ -23,7 +23,7 @@ export class FacebookController {
     return this.facebookPageService.getAccessToken(facebookPageQuery);
   }
 
-  @Post('/posts/save-page-to-db')
+  @Post('/pages/save-page-to-db')
   async savePage(@Query() FacebookPageQuery: FacebookPageQuery) {
     console.log('save page to db');
     return this.facebookPageService.savePage(FacebookPageQuery);
