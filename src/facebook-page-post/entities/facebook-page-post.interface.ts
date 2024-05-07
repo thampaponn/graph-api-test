@@ -1,9 +1,3 @@
-export enum FacebookPostType {
-    CAPTION = 'caption',
-    PHOTO = 'photo',
-    VIDEO = 'video'
-}
-
 export interface FacebookReactionType {
     like: number;
     love: number;
@@ -33,7 +27,7 @@ export interface IPost {
     message?: string;
     created_time: string;
     attachments?: string[];
-    postType: FacebookPostType;
+    postType: string;
     reactions: FacebookReactionType;
     comments: string[];
 }

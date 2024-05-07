@@ -13,20 +13,50 @@ export class Insight {
     @Prop({ type: String, index: true })
     pageFans: string;
 
-    @Prop({ type: Number })
-    postsCount: number;
+    // @Prop({ type: Number })
+    // postsCount: number;
+
+    // @Prop({ type: Object })
+    // postsTypeTotal: object;
+
+    // @Prop({ type: Object })
+    // allReactionsType: FacebookReactionType;
+
+    // @Prop({ type: Number })
+    // totalReactions: number;
+
+    // @Prop({ type: Number })
+    // totalComments: number;
+
+    // @Prop({ type: Number })
+    // totalShares: number;
 
     @Prop({ type: Object })
-    postsTypeTotal: object;
+    pageVideoViewsDay: object;
 
     @Prop({ type: Object })
-    totalReactions: FacebookReactionType;
+    pageVideoViewsWeek: object;
+
+    @Prop({ type: Object })
+    pageVideoViewsDay28: object;
+
+    @Prop({ type: Object })
+    pageVideoViewTime: object;
+
+    @Prop({ type: Object })
+    postVideoViews15s: object;
+
+    @Prop({ type: Object })
+    postVideoCompletedViews: object;
+
+    @Prop({ type: Object })
+    postVideoAvgTime: object;
+
+    @Prop({ type: Object })
+    postVideoViews60s: object;
 
     @Prop({ type: Number })
-    totalComments: number;
-
-    @Prop({ type: Number })
-    totalShares: number;
+    engagementRate: number;
 
     @Prop({ type: String, index: true })
     created_time: string;

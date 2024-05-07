@@ -5,7 +5,7 @@ import { FacebookPageQuery } from './dto/facebook-page.dto';
 import { FacebookPostService } from './services/facebook-post.service';
 import { FacebookPostQuery } from './dto/facebook-post.dto';
 import { FacebookPostDate } from './dto/facebook-post-date.dto';
-import { FacebookInsightQuery } from './dto/facebook-insight.dto';
+// import { FacebookInsightQuery } from './dto/facebook-insight.dto';
 import { FacebookInsightService } from './services/facebook-insight.service';
 
 @ApiTags('facebook-page-post-insight')
@@ -83,15 +83,21 @@ export class FacebookController {
     return this.facebookPostService.deleteOnePost(facebookPostQuery);
   }
 
-  @Get('/page/insights')
-  async getFacebookInsights(@Query() facebookInsightQuery: FacebookInsightQuery) {
-    console.log('get page insights');
-    return this.facebookInsightService.getFacebookInsights(facebookInsightQuery)
-  }
+  // @Get('/page/insights')
+  // async getFacebookInsights(@Query() facebookInsightQuery: FacebookInsightQuery) {
+  //   console.log('get page insights');
+  //   return this.facebookInsightService.getFacebookInsights(facebookInsightQuery)
+  // }
 
   @Post('/page/insights')
   async saveInsight(@Query() facebookPageQuery: FacebookPageQuery) {
     console.log('save insight');
     return this.facebookInsightService.saveInsight(facebookPageQuery);
+  }
+
+  @Get('/page/insights/:pageId')
+  async getInsightById(@Query() facebookPageQuery: FacebookPageQuery) {
+    console.log('get insight from posts database');
+    return this.facebookInsightService.getPagePostsInsight(facebookPageQuery);
   }
 }
