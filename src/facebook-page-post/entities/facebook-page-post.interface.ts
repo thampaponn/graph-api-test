@@ -4,14 +4,14 @@ export enum FacebookPostType {
     VIDEO = 'video'
 }
 
-export enum FacebookReactionType {
-    LIKE = 'like',
-    LOVE = 'love',
-    CARE = 'care',
-    WOW = 'wow',
-    HAHA = 'haha',
-    SAD = 'sad',
-    ANGRY = 'angry'
+export interface FacebookReactionType {
+    like: number;
+    love: number;
+    care: number;
+    wow: number;
+    haha: number;
+    sad: number;
+    angry: number;
 }
 
 export interface IPage {

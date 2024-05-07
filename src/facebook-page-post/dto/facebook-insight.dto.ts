@@ -11,15 +11,15 @@ export class FacebookInsightQuery implements Pick<IFacebookSubscribePage, 'pageI
   @IsNotEmpty()
   pageId: string;
   
-  // @ApiProperty({
-  //   enum: FacebookInsightMetric,
-  //   enumName: "Metric",
-  //   isArray: true,
-  //   example: [FacebookInsightMetric.PAGE_ACTIONS_POST_REACTIONS_TOTAL]
-  // })
-  // @IsEnum(FacebookInsightMetric, { each: true })
-  // @IsNotEmpty()
-  // metrics: FacebookInsightMetric[]
+  @ApiProperty({
+    enum: FacebookInsightMetric,
+    enumName: "Metric",
+    isArray: true,
+    example: [FacebookInsightMetric.PAGE_ACTIONS_POST_REACTIONS_TOTAL]
+  })
+  @IsEnum(FacebookInsightMetric, { each: true })
+  @IsNotEmpty()
+  metrics: FacebookInsightMetric[]
 
   @ApiProperty({
     required: false,

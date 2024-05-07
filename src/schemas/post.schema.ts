@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { FacebookReactionType } from "src/facebook-page-post/entities/facebook-page-post.interface";
 
 @Schema({ timestamps: true, versionKey: false })
 export class Post {
@@ -21,7 +22,7 @@ export class Post {
     attachments?: object;
 
     @Prop({ type: Object })
-    reactions?: object;
+    reactions?: FacebookReactionType;
 
     @Prop({ type: Number })
     comments?: number;

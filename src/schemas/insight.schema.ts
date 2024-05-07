@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { ObjectId } from "mongoose";
+import { FacebookReactionType } from "src/facebook-page-post/entities/facebook-page-post.interface";
 
 @Schema({ timestamps: true, versionKey: false })
 export class Insight {
@@ -18,8 +19,8 @@ export class Insight {
     @Prop({ type: Object })
     postsTypeTotal: object;
 
-    @Prop({ type: Number })
-    totalReactions: number;
+    @Prop({ type: Object })
+    totalReactions: FacebookReactionType;
 
     @Prop({ type: Number })
     totalComments: number;
