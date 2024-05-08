@@ -13,6 +13,12 @@ export class Insight {
     @Prop({ type: String, index: true })
     pageFans: string;
 
+    @Prop({ type: Object })
+    pageImpressions: object;
+
+    @Prop({ type: Object })
+    pageImpressionsUnique: object;
+
     // @Prop({ type: Number })
     // postsCount: number;
 
@@ -43,20 +49,10 @@ export class Insight {
     @Prop({ type: Object })
     pageVideoViewTime: object;
 
-    @Prop({ type: Object })
-    postVideoViews15s: object;
 
-    @Prop({ type: Object })
-    postVideoCompletedViews: object;
 
-    @Prop({ type: Object })
-    postVideoAvgTime: object;
-
-    @Prop({ type: Object })
-    postVideoViews60s: object;
-
-    @Prop({ type: Object })
-    linkClicks: object;
+    // @Prop({ type: Number })
+    // linkClicks: number;
 
     @Prop({ type: Number })
     engagementRate: number;

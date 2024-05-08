@@ -8,6 +8,7 @@ import { Model } from "mongoose";
 import axios from 'axios';
 import { FacebookPageQuery } from "../dto/facebook-page.dto";
 import { Post } from "src/schemas/post.schema";
+import { FacebookPostQuery } from "../dto/facebook-post.dto";
 
 @Injectable()
 export class FacebookInsightService {
@@ -48,6 +49,36 @@ export class FacebookInsightService {
     const result = { todayLikes, yesterdayLikes, likesChanged }
     this.logger.debug('Today likes: ' + result.todayLikes + ', Yesterday likes: ' + result.yesterdayLikes + ', Changes: ' + result.likesChanged)
     return result
+  }
+
+  async getFacebookPageImpressions(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/insights/page_impressions`, {
+      params: {
+        // date_preset: query?.datePreset,
+        period: 'day',
+        // since: query?.since,
+        // until: query?.until,
+        access_token: query?.accessToken
+      }
+    })
+    const pageImpressions = axiosResponse.data
+    this.logger.debug('Facebook insights fetched: ' + pageImpressions)
+    return pageImpressions.data[0]
+  }
+
+  async getFacebookPageImpressionsUnique(query: FacebookPageQuery) {
+    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/insights/page_impressions_unique`, {
+      params: {
+        // date_preset: query?.datePreset,
+        period: 'day',
+        // since: query?.since,
+        // until: query?.until,
+        access_token: query?.accessToken
+      }
+    })
+    const pageImpressions = axiosResponse.data
+    this.logger.debug('Facebook insights fetched: ' + pageImpressions)
+    return pageImpressions.data[0]
   }
 
   async getFacebookPageVideoViewTime(query: FacebookPageQuery) {
@@ -114,70 +145,6 @@ export class FacebookInsightService {
     return videoViewsDay28.data[0]
   }
 
-  async getPostVideoViews15s(query: FacebookPageQuery) {
-    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/insights`, {
-      params: {
-        metric: 'post_video_views_15s',
-        // date_preset: query?.datePreset,
-        period: 'lifetime',
-        // since: query?.since,
-        // until: query?.until,
-        access_token: query?.accessToken
-      }
-    })
-    const postVideoViews15s = axiosResponse.data
-    this.logger.debug('Facebook insights fetched: ' + postVideoViews15s)
-    return postVideoViews15s.data
-  }
-
-  async getPostVideoCompletedViews(query: FacebookPageQuery) {
-    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/insights`, {
-      params: {
-        metric: 'post_video_complete_views_organic',
-        // date_preset: query?.datePreset,
-        period: 'lifetime',
-        // since: query?.since,
-        // until: query?.until,
-        access_token: query?.accessToken
-      }
-    })
-    const postVideoCompletedViews = axiosResponse.data
-    this.logger.debug('Facebook insights fetched: ' + postVideoCompletedViews)
-    return postVideoCompletedViews.data
-  }
-
-  async getPostVideoAvgTime(query: FacebookPageQuery) {
-    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/insights`, {
-      params: {
-        metric: 'post_video_avg_time_watched',
-        // date_preset: query?.datePreset,
-        period: 'lifetime',
-        // since: query?.since,
-        // until: query?.until,
-        access_token: query?.accessToken
-      }
-    })
-    const postVideoAvgTime = axiosResponse.data
-    this.logger.debug('Facebook insights fetched: ' + postVideoAvgTime)
-    return postVideoAvgTime.data
-  }
-
-  async getPostVideoViews60s(query: FacebookPageQuery) {
-    const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/insights`, {
-      params: {
-        metric: 'post_video_views_60s_excludes_shorter',
-        // date_preset: query?.datePreset,
-        period: 'lifetime',
-        // since: query?.since,
-        // until: query?.until,
-        access_token: query?.accessToken
-      }
-    })
-    const postVideoViews60s = axiosResponse.data
-    this.logger.debug('Facebook insights fetched: ' + postVideoViews60s)
-    return postVideoViews60s.data
-  }
-
   async getLinksClicks(query: FacebookPageQuery) {
     const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.pageId}/insights`, {
       params: {
@@ -189,9 +156,12 @@ export class FacebookInsightService {
         access_token: query?.accessToken
       }
     })
-    const linksClicks = axiosResponse.data
-    this.logger.debug('Facebook insights fetched: ' + linksClicks)
-    return linksClicks.data[0]
+    const insightsData = axiosResponse.data;
+    this.logger.debug('Facebook insights fetched: ' + JSON.stringify(insightsData));
+    const latestData = insightsData.data[0].values[0];
+    const linkClicksCount = latestData.value.link_clicks || 0;
+
+    return linkClicksCount;
   }
 
   async getFacebookPagePostCount(query: FacebookPageQuery) {
@@ -240,28 +210,25 @@ export class FacebookInsightService {
     for (const post of await this.postModel.find({ pageId: query.pageId })) {
       totalClicks += post.postClicked ?? 0;
     }
+    const linkClicks = await this.getLinksClicks(query);
     const allReactionsType = { like, love, care, wow, haha, sad, angry }
     const totalReactions = like + love + care + wow + haha + sad + angry
     const postsTypeTotal = { photo: photoType, video: videoType, caption: captionType }
-    const result = { postsCount, postsTypeTotal, allReactionsType, totalReactions, totalComments, totalShares, totalClicks }
+    const result = { postsCount, postsTypeTotal, allReactionsType, totalReactions, totalComments, totalShares, totalClicks, linkClicks }
     this.logger.debug(JSON.stringify(result))
     return result
   }
 
   async saveInsight(query: FacebookPageQuery) {
     const likesCount = await this.getFacebookPageLikes(query);
+    const pageImpressions = await this.getFacebookPageImpressions(query);
+    const pageImpressionsUnique = await this.getFacebookPageImpressionsUnique(query);
     const pageVideoViewTime = (await this.getFacebookPageVideoViewTime(query)).values;
     const pageVideoViewsDay = (await this.getFacebookPageVideoViewsDay(query)).values;
     const pageVideoViewsWeek = (await this.getFacebookPageVideoViewsWeek(query)).values;
     const pageVideoViewsDay28 = (await this.getFacebookPageVideoViewsDay28(query)).values;
-    const postVideoViews15s = await this.getPostVideoViews15s(query);
-    const postVideoCompletedViews = await this.getPostVideoCompletedViews(query);
-    const postVideoAvgTime = await this.getPostVideoAvgTime(query);
-    const postVideoViews60s = await this.getPostVideoViews60s(query);
-    const linkClicks = await this.getLinksClicks(query);
-
-    const result = { pageId: query.pageId, pageFans: likesCount.todayLikes, pageVideoViewTime, pageVideoViewsDay, pageVideoViewsWeek, pageVideoViewsDay28, postVideoViews15s, postVideoCompletedViews, postVideoAvgTime, postVideoViews60s, linkClicks }
-    this.logger.debug('Insight info: ' + likesCount.todayLikes + ', Page video view time: ' + JSON.stringify(pageVideoViewTime) + ', Page video views day: ' + JSON.stringify(pageVideoViewsDay) + ', Page video views week: ' + JSON.stringify(pageVideoViewsWeek) + ', Page video views day 28: ' + JSON.stringify(pageVideoViewsDay28) + ', Post video views 15s: ' + JSON.stringify(postVideoViews15s) + ', Post video completed views: ' + JSON.stringify(postVideoCompletedViews) + ', Post video avg time: ' + JSON.stringify(postVideoAvgTime) + ', Post video views 60s: ' + JSON.stringify(postVideoViews60s) + ', Link clicks: ' + JSON.stringify(linkClicks))
+    const result = { pageId: query.pageId, pageFans: likesCount.todayLikes, pageImpressions, pageImpressionsUnique, pageVideoViewTime, pageVideoViewsDay, pageVideoViewsWeek, pageVideoViewsDay28 }
+    this.logger.debug('Insight info: ' + likesCount.todayLikes + ', Page Impression/Unique: ' + JSON.stringify(pageImpressions) + '/ ' + JSON.stringify(pageImpressionsUnique) + ', Page video view time: ' + JSON.stringify(pageVideoViewTime) + ', Page video views day: ' + JSON.stringify(pageVideoViewsDay) + ', Page video views week: ' + JSON.stringify(pageVideoViewsWeek) + ', Page video views day 28: ' + JSON.stringify(pageVideoViewsDay28))
     return await this.insightModel.create(result);
   }
 }

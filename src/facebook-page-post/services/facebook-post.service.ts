@@ -58,12 +58,182 @@ export class FacebookPostService {
                 post.comments = post.comments ? post.comments.data.length : 0;
                 post.shares = post.shares ? post.shares.count : 0;
                 post.postClicked = await this.getPostClicks(post.id, query.accessToken);
+                post.postImpressions = await this.getPostImpressions({ postId: post.id, accessToken: query.accessToken });
+                post.postImpressionsUnique = await this.getPostImpressionsUnique({ postId: post.id, accessToken: query.accessToken });
+                post.postImpressionsPaid = await this.getPostImpressionsPaid({ postId: post.id, accessToken: query.accessToken });
+                post.postImpressionsPaidUnique = await this.getPostImpressionsPaidUnique({ postId: post.id, accessToken: query.accessToken });
+                post.postImpressionsOrganic = await this.getPostImpressionsOrganic({ postId: post.id, accessToken: query.accessToken });
+                post.postImpressionsOrganicUnique = await this.getPostImpressionsOrganicUnique({ postId: post.id, accessToken: query.accessToken });
+                post.postVideoViews15s = await this.getPostVideoViews15s({ postId: post.id, accessToken: query.accessToken });
+                post.postVideoCompletedViews = await this.getPostVideoCompletedViews({ postId: post.id, accessToken: query.accessToken });
+                post.postVideoAvgTime = await this.getPostVideoAvgTime({ postId: post.id, accessToken: query.accessToken });
+                post.postVideoViews60s = await this.getPostVideoViews60s({ postId: post.id, accessToken: query.accessToken });
             }
             allPosts = allPosts.concat(result);
             url = data.paging && data.paging.next ? data.paging.next : null;
         }
         this.logger.debug('Posts info being return to another function: ' + JSON.stringify(allPosts));
         return allPosts;
+    }
+
+    async getPostImpressions(query: FacebookPostQuery) {
+        const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.postId}/insights`, {
+            params: {
+                metric: 'post_impressions',
+                // date_preset: query?.datePreset,
+                period: 'lifetime',
+                // since: query?.since,
+                // until: query?.until,
+                access_token: query?.accessToken
+            }
+        })
+        const postImpressions = axiosResponse.data
+        this.logger.debug('Facebook insights fetched: ' + postImpressions)
+        return postImpressions.data
+    }
+
+    async getPostImpressionsUnique(query: FacebookPostQuery) {
+        const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.postId}/insights`, {
+            params: {
+                metric: 'post_impressions_unique',
+                // date_preset: query?.datePreset,
+                period: 'lifetime',
+                // since: query?.since,
+                // until: query?.until,
+                access_token: query?.accessToken
+            }
+        })
+        const postImpressionsUnique = axiosResponse.data
+        this.logger.debug('Facebook insights fetched: ' + postImpressionsUnique)
+        return postImpressionsUnique.data
+    }
+
+    async getPostImpressionsPaid(query: FacebookPostQuery) {
+        const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.postId}/insights`, {
+            params: {
+                metric: 'post_impressions_paid',
+                // date_preset: query?.datePreset,
+                period: 'lifetime',
+                // since: query?.since,
+                // until: query?.until,
+                access_token: query?.accessToken
+            }
+        })
+        const postImpressions = axiosResponse.data
+        this.logger.debug('Facebook insights fetched: ' + postImpressions)
+        return postImpressions.data
+    }
+
+    async getPostImpressionsPaidUnique(query: FacebookPostQuery) {
+        const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.postId}/insights`, {
+            params: {
+                metric: 'post_impressions_paid_unique',
+                // date_preset: query?.datePreset,
+                period: 'lifetime',
+                // since: query?.since,
+                // until: query?.until,
+                access_token: query?.accessToken
+            }
+        })
+        const postImpressionsUnique = axiosResponse.data
+        this.logger.debug('Facebook insights fetched: ' + postImpressionsUnique)
+        return postImpressionsUnique.data
+    }
+
+    async getPostImpressionsOrganic(query: FacebookPostQuery) {
+        const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.postId}/insights`, {
+            params: {
+                metric: 'post_impressions_organic',
+                // date_preset: query?.datePreset,
+                period: 'lifetime',
+                // since: query?.since,
+                // until: query?.until,
+                access_token: query?.accessToken
+            }
+        })
+        const postImpressions = axiosResponse.data
+        this.logger.debug('Facebook insights fetched: ' + postImpressions)
+        return postImpressions.data
+    }
+
+    async getPostImpressionsOrganicUnique(query: FacebookPostQuery) {
+        const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.postId}/insights`, {
+            params: {
+                metric: 'post_impressions_organic_unique',
+                // date_preset: query?.datePreset,
+                period: 'lifetime',
+                // since: query?.since,
+                // until: query?.until,
+                access_token: query?.accessToken
+            }
+        })
+        const postImpressionsUnique = axiosResponse.data
+        this.logger.debug('Facebook insights fetched: ' + postImpressionsUnique)
+        return postImpressionsUnique.data
+    }
+
+    async getPostVideoViews15s(query: FacebookPostQuery) {
+        const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.postId}/insights`, {
+            params: {
+                metric: 'post_video_views_15s',
+                // date_preset: query?.datePreset,
+                period: 'lifetime',
+                // since: query?.since,
+                // until: query?.until,
+                access_token: query?.accessToken
+            }
+        })
+        const postVideoViews15s = axiosResponse.data
+        this.logger.debug('Facebook insights fetched: ' + postVideoViews15s)
+        return postVideoViews15s.data
+    }
+
+    async getPostVideoCompletedViews(query: FacebookPostQuery) {
+        const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.postId}/insights`, {
+            params: {
+                metric: 'post_video_complete_views_organic',
+                // date_preset: query?.datePreset,
+                period: 'lifetime',
+                // since: query?.since,
+                // until: query?.until,
+                access_token: query?.accessToken
+            }
+        })
+        const postVideoCompletedViews = axiosResponse.data
+        this.logger.debug('Facebook insights fetched: ' + postVideoCompletedViews)
+        return postVideoCompletedViews.data
+    }
+
+    async getPostVideoAvgTime(query: FacebookPostQuery) {
+        const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.postId}/insights`, {
+            params: {
+                metric: 'post_video_avg_time_watched',
+                // date_preset: query?.datePreset,
+                period: 'lifetime',
+                // since: query?.since,
+                // until: query?.until,
+                access_token: query?.accessToken
+            }
+        })
+        const postVideoAvgTime = axiosResponse.data
+        this.logger.debug('Facebook insights fetched: ' + postVideoAvgTime)
+        return postVideoAvgTime.data
+    }
+
+    async getPostVideoViews60s(query: FacebookPostQuery) {
+        const axiosResponse = await this.httpService.axiosRef.get(`https://graph.facebook.com/${query.postId}/insights`, {
+            params: {
+                metric: 'post_video_views_60s_excludes_shorter',
+                // date_preset: query?.datePreset,
+                period: 'lifetime',
+                // since: query?.since,
+                // until: query?.until,
+                access_token: query?.accessToken
+            }
+        })
+        const postVideoViews60s = axiosResponse.data
+        this.logger.debug('Facebook insights fetched: ' + postVideoViews60s)
+        return postVideoViews60s.data
     }
 
     async getPostReactions(postId: string, accessToken: string) {

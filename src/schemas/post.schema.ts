@@ -32,6 +32,36 @@ export class Post {
 
     @Prop({ type: Number })
     postClicked?: number;
+
+    @Prop({ type: Object })
+    postImpressions: object;
+
+    @Prop({ type: Object })
+    postImpressionsUnique: object;
+
+    @Prop({ type: Object })
+    postImpressionsPaid: object;
+
+    @Prop({ type: Object })
+    postImpressionsPaidUnique: object;
+
+    @Prop({ type: Object })
+    postImpressionsOrganic: object;
+
+    @Prop({ type: Object })
+    postImpressionsOrganicUnique: object;
+
+    @Prop({ type: Object })
+    postVideoViews15s: object;
+
+    @Prop({ type: Object })
+    postVideoCompletedViews: object;
+
+    @Prop({ type: Object })
+    postVideoAvgTime: object;
+
+    @Prop({ type: Object })
+    postVideoViews60s: object;
 }
 
 export type PostDocument = Post & Document;
