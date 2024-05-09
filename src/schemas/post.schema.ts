@@ -31,25 +31,31 @@ export class Post {
     shares?: number;
 
     @Prop({ type: Number })
+    totalPostReactions?: number
+
+    @Prop({ type: Number })
+    engagementRate: number;
+
+    @Prop({ type: Number })
     postClicked?: number;
 
-    @Prop({ type: Object })
-    postImpressions: object;
+    @Prop({ type: Number })
+    postImpressions: number;
 
-    @Prop({ type: Object })
-    postImpressionsUnique: object;
+    @Prop({ type: Number })
+    postImpressionsUnique: number;
 
-    @Prop({ type: Object })
-    postImpressionsPaid: object;
+    @Prop({ type: Number })
+    postImpressionsPaid: number;
 
-    @Prop({ type: Object })
-    postImpressionsPaidUnique: object;
+    @Prop({ type: Number })
+    postImpressionsPaidUnique: number;
 
-    @Prop({ type: Object })
-    postImpressionsOrganic: object;
+    @Prop({ type: Number })
+    postImpressionsOrganic: number;
 
-    @Prop({ type: Object })
-    postImpressionsOrganicUnique: object;
+    @Prop({ type: Number })
+    postImpressionsOrganicUnique: number;
 
     @Prop({ type: Object })
     postVideoViews15s: object;

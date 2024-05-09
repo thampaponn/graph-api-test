@@ -22,7 +22,7 @@ export class FacebookPostService {
             const postsInfo = await this.getFacebookPagePosts(page);
             this.logger.debug('Posts info: ' + postsInfo.length)
             let timeTaken = Date.now() - start;
-            console.log("Total time taken : " + timeTaken/1000 + " seconds");
+            console.log("Total time taken : " + timeTaken / 1000 + " seconds");
             return await this.postModel.insertMany(postsInfo);
         } catch (error) {
             console.log(error);
@@ -31,57 +31,76 @@ export class FacebookPostService {
     }
 
     async getFacebookPagePosts(query: FacebookPageQuery) {
+        let date = new Date();
+        date.setMonth(date.getMonth() - 3);
+        let today = new Date(date).toISOString().slice(0, 19) + "+0000";
         let allPosts = [];
         let url = `https://graph.facebook.com/${query.pageId}/posts`;
         while (url) {
             const axiosResponse = await axios.get(url, {
                 params: {
+                    since: today,
                     fields: 'id,created_time,message,attachments{media,subattachments},comments,shares',
                     access_token: query.accessToken,
                     limit: 100
                 }
             });
             const data = axiosResponse.data;
-            const result = data.data;
-            for (const post of result) {
-                let type = 'caption';
-                if (post.attachments && post.attachments.data.length > 0) {
-                    for (let attachmentData of post.attachments.data) {
-                        let media = attachmentData.media || (attachmentData.subattachments ? attachmentData.subattachments.data[0].media : null);
-                        if (media) {
-                            if (media.source) {
-                                type = 'video';
-                                break;
-                            } else if (media.image && media.image.src) {
-                                type = 'photo';
-                                break;
-                            }
-                        }
-                    }
-                }
+            const posts = data.data;
+
+            const postsInsights = await Promise.all(posts.map(async (post) => {
                 post.pageId = query.pageId;
                 post.postId = post.id;
-                post.postType = type;
-                post.reactions = await this.getPostReactions(post.id, query.accessToken);
+                post.postType = this.getPostType(post);
+                post.reactions = await this.getPostReactions({ postId: post.id, accessToken: query.accessToken });
                 post.comments = post.comments ? post.comments.data.length : 0;
                 post.shares = post.shares ? post.shares.count : 0;
-                post.postClicked = await this.getPostClicks(post.id, query.accessToken);
-                post.postImpressions = await this.getPostImpressions({ postId: post.id, accessToken: query.accessToken });
-                post.postImpressionsUnique = await this.getPostImpressionsUnique({ postId: post.id, accessToken: query.accessToken });
-                post.postImpressionsPaid = await this.getPostImpressionsPaid({ postId: post.id, accessToken: query.accessToken });
-                post.postImpressionsPaidUnique = await this.getPostImpressionsPaidUnique({ postId: post.id, accessToken: query.accessToken });
-                post.postImpressionsOrganic = await this.getPostImpressionsOrganic({ postId: post.id, accessToken: query.accessToken });
-                post.postImpressionsOrganicUnique = await this.getPostImpressionsOrganicUnique({ postId: post.id, accessToken: query.accessToken });
-                post.postVideoViews15s = await this.getPostVideoViews15s({ postId: post.id, accessToken: query.accessToken });
-                post.postVideoCompletedViews = await this.getPostVideoCompletedViews({ postId: post.id, accessToken: query.accessToken });
-                post.postVideoAvgTime = await this.getPostVideoAvgTime({ postId: post.id, accessToken: query.accessToken });
-                post.postVideoViews60s = await this.getPostVideoViews60s({ postId: post.id, accessToken: query.accessToken });
-            }
-            allPosts = allPosts.concat(result);
+                const metrics = await Promise.all([
+                    this.getPostClicks({ postId: post.id, accessToken: query.accessToken }),
+                    this.getPostImpressions({ postId: post.id, accessToken: query.accessToken }),
+                    this.getPostImpressionsUnique({ postId: post.id, accessToken: query.accessToken }),
+                    this.getPostImpressionsPaid({ postId: post.id, accessToken: query.accessToken }),
+                    this.getPostImpressionsPaidUnique({ postId: post.id, accessToken: query.accessToken }),
+                    this.getPostImpressionsOrganic({ postId: post.id, accessToken: query.accessToken }),
+                    this.getPostImpressionsOrganicUnique({ postId: post.id, accessToken: query.accessToken }),
+                    this.getPostVideoViews15s({ postId: post.id, accessToken: query.accessToken }),
+                    this.getPostVideoCompletedViews({ postId: post.id, accessToken: query.accessToken }),
+                    this.getPostVideoAvgTime({ postId: post.id, accessToken: query.accessToken }),
+                    this.getPostVideoViews60s({ postId: post.id, accessToken: query.accessToken }),
+                ]);
+                [post.postClicked, post.postImpressions, post.postImpressionsUnique, post.postImpressionsPaid, post.postImpressionsPaidUnique, post.postImpressionsOrganic, post.postImpressionsOrganicUnique, post.postVideoAvgTime, post.postVideoCompletedViews, post.postVideoViews15s, post.postVideoViews60s] = metrics;
+                let like = post.reactions.like ? post.reactions.like : 0;
+                let love = post.reactions.love ? post.reactions.love : 0;
+                let care = post.reactions.care ? post.reactions.care : 0;
+                let haha = post.reactions.haha ? post.reactions.haha : 0;
+                let wow = post.reactions.wow ? post.reactions.wow : 0;
+                let sad = post.reactions.sad ? post.reactions.sad : 0;
+                let angry = post.reactions.angry ? post.reactions.angry : 0;
+                let comments = post.comments ? post.comments : 0;
+                let shares = post.shares ? post.shares : 0;
+                let impressions = metrics[1]
+                post.engagementRate = (((like + love + care + haha + wow + sad + angry + comments + shares) * 100) / impressions) ? (((like + love + care + haha + wow + sad + angry + comments + shares) * 100) / impressions) : 0;
+                return post;
+            }));
+
+            allPosts = allPosts.concat(postsInsights);
             url = data.paging && data.paging.next ? data.paging.next : null;
         }
-        this.logger.debug('Posts info being return to another function: ' + JSON.stringify(allPosts));
         return allPosts;
+    }
+
+    getPostType(post) {
+        if (post.attachments && post.attachments.data.length > 0) {
+            for (let attachment of post.attachments.data) {
+                let media = attachment.media || (attachment.subattachments ? attachment.subattachments.data[0].media : null);
+                if (media && media.source) {
+                    return 'video';
+                } else if (media && media.image && media.image.src) {
+                    return 'photo';
+                }
+            }
+        }
+        return 'caption';
     }
 
     async getPostImpressions(query: FacebookPostQuery) {
@@ -97,7 +116,7 @@ export class FacebookPostService {
         })
         const postImpressions = axiosResponse.data
         this.logger.debug('Facebook insights fetched: ' + postImpressions)
-        return postImpressions.data
+        return postImpressions.data[0].values[0].value
     }
 
     async getPostImpressionsUnique(query: FacebookPostQuery) {
@@ -113,7 +132,7 @@ export class FacebookPostService {
         })
         const postImpressionsUnique = axiosResponse.data
         this.logger.debug('Facebook insights fetched: ' + postImpressionsUnique)
-        return postImpressionsUnique.data
+        return postImpressionsUnique.data[0].values[0].value
     }
 
     async getPostImpressionsPaid(query: FacebookPostQuery) {
@@ -127,9 +146,9 @@ export class FacebookPostService {
                 access_token: query?.accessToken
             }
         })
-        const postImpressions = axiosResponse.data
-        this.logger.debug('Facebook insights fetched: ' + postImpressions)
-        return postImpressions.data
+        const postImpressionsPaid = axiosResponse.data
+        this.logger.debug('Facebook insights fetched: ' + postImpressionsPaid)
+        return postImpressionsPaid.data[0].values[0].value
     }
 
     async getPostImpressionsPaidUnique(query: FacebookPostQuery) {
@@ -143,9 +162,9 @@ export class FacebookPostService {
                 access_token: query?.accessToken
             }
         })
-        const postImpressionsUnique = axiosResponse.data
-        this.logger.debug('Facebook insights fetched: ' + postImpressionsUnique)
-        return postImpressionsUnique.data
+        const postImpressionsPaidUnique = axiosResponse.data
+        this.logger.debug('Facebook insights fetched: ' + postImpressionsPaidUnique)
+        return postImpressionsPaidUnique.data[0].values[0].value
     }
 
     async getPostImpressionsOrganic(query: FacebookPostQuery) {
@@ -159,9 +178,9 @@ export class FacebookPostService {
                 access_token: query?.accessToken
             }
         })
-        const postImpressions = axiosResponse.data
-        this.logger.debug('Facebook insights fetched: ' + postImpressions)
-        return postImpressions.data
+        const postImpressionsOrganic = axiosResponse.data
+        this.logger.debug('Facebook insights fetched: ' + postImpressionsOrganic)
+        return postImpressionsOrganic.data[0].values[0].value
     }
 
     async getPostImpressionsOrganicUnique(query: FacebookPostQuery) {
@@ -175,9 +194,9 @@ export class FacebookPostService {
                 access_token: query?.accessToken
             }
         })
-        const postImpressionsUnique = axiosResponse.data
-        this.logger.debug('Facebook insights fetched: ' + postImpressionsUnique)
-        return postImpressionsUnique.data
+        const postImpressionsOrganicUnique = axiosResponse.data
+        this.logger.debug('Facebook insights fetched: ' + postImpressionsOrganicUnique)
+        return postImpressionsOrganicUnique.data[0].values[0].value
     }
 
     async getPostVideoViews15s(query: FacebookPostQuery) {
@@ -244,20 +263,20 @@ export class FacebookPostService {
         return postVideoViews60s.data
     }
 
-    async getPostReactions(postId: string, accessToken: string) {
-        const url = `https://graph.facebook.com/${postId}/insights/post_reactions_by_type_total`;
-        const response = await axios.get(url, {
-            params: { access_token: accessToken }
+    async getPostReactions(query: FacebookPostQuery) {
+        const url = `https://graph.facebook.com/${query.postId}/insights/post_reactions_by_type_total`;
+        const reactions = await axios.get(url, {
+            params: { access_token: query.accessToken }
         });
-        return response.data.data[0].values[0].value;
+        return reactions.data.data[0].values[0].value;
     }
 
-    async getPostClicks(postId: string, accessToken: string) {
-        const url = `https://graph.facebook.com/${postId}/insights/post_clicks`;
-        const response = await axios.get(url, {
-            params: { access_token: accessToken }
+    async getPostClicks(query: FacebookPostQuery) {
+        const url = `https://graph.facebook.com/${query.postId}/insights/post_clicks`;
+        const postClicks = await axios.get(url, {
+            params: { access_token: query.accessToken }
         });
-        return response.data.data[0].values[0].value;
+        return postClicks.data.data[0].values[0].value;
     }
 
 
@@ -266,7 +285,7 @@ export class FacebookPostService {
         try {
             this.logger.debug('Find all posts between 2 times: ' + query.pageId + ' ' + query.startDate + ' ' + query.endDate)
             let timeTaken = Date.now() - start;
-            console.log("Total time taken : " + timeTaken/1000 + " seconds");
+            console.log("Total time taken : " + timeTaken / 1000 + " seconds");
             return await this.postModel.find({
                 pageId: { $in: query.pageId },
                 created_time: {
@@ -286,7 +305,7 @@ export class FacebookPostService {
             const posts = await this.postModel.find({ pageId: query.pageId });
             this.logger.debug('Posts info: ' + posts)
             let timeTaken = Date.now() - start;
-            console.log("Total time taken : " + timeTaken/1000 + " seconds");
+            console.log("Total time taken : " + timeTaken / 1000 + " seconds");
             return posts;
         } catch (error) {
             console.log(error);
@@ -300,7 +319,7 @@ export class FacebookPostService {
             await this.postModel.deleteMany({ pageId: query.pageId });
             this.logger.debug('Post being updated: ' + query.pageId)
             let timeTaken = Date.now() - start;
-            console.log("Total time taken : " + timeTaken/1000 + " seconds");
+            console.log("Total time taken : " + timeTaken / 1000 + " seconds");
             return await this.savePost(query);
         } catch (error) {
             console.log(error);
@@ -314,7 +333,7 @@ export class FacebookPostService {
             await this.postModel.findOneAndDelete({ postId: query.postId });
             this.logger.debug('Post being deleted: ' + query.postId)
             let timeTaken = Date.now() - start;
-            console.log("Total time taken : " + timeTaken/1000 + " seconds");
+            console.log("Total time taken : " + timeTaken / 1000 + " seconds");
             return `Deleted post with postId: ${query.postId} successfully`;
         } catch (error) {
             console.log(error);

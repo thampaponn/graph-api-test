@@ -219,7 +219,7 @@ export class FacebookInsightService {
       const result = { postsCount, postsTypeTotal, allReactionsType, totalReactions, totalComments, totalShares, totalClicks, linkClicks }
       this.logger.debug(JSON.stringify(result))
       let timeTaken = Date.now() - start;
-      console.log("Total time taken : " + timeTaken/1000 + " seconds");
+      console.log("Total time taken : " + timeTaken / 1000 + " seconds");
       return result
     } catch (error) {
       console.log(error);
@@ -240,7 +240,7 @@ export class FacebookInsightService {
       const result = { pageId: query.pageId, pageFans: likesCount.todayLikes, pageImpressions, pageImpressionsUnique, pageVideoViewTime, pageVideoViewsDay, pageVideoViewsWeek, pageVideoViewsDay28 }
       this.logger.debug('Insight info: ' + likesCount.todayLikes + ', Page Impression/Unique: ' + JSON.stringify(pageImpressions) + '/ ' + JSON.stringify(pageImpressionsUnique) + ', Page video view time: ' + JSON.stringify(pageVideoViewTime) + ', Page video views day: ' + JSON.stringify(pageVideoViewsDay) + ', Page video views week: ' + JSON.stringify(pageVideoViewsWeek) + ', Page video views day 28: ' + JSON.stringify(pageVideoViewsDay28))
       let timeTaken = Date.now() - start;
-      console.log("Total time taken : " + timeTaken/1000 + " milliseconds");
+      console.log("Total time taken : " + timeTaken / 1000 + " seconds");
       return await this.insightModel.create(result);
     } catch (error) {
       console.log(error);
@@ -266,7 +266,7 @@ export class FacebookInsightService {
       this.logger.debug('Updated insight info: ' + likesCount.todayLikes + ', Page Impression/Unique: ' + JSON.stringify(pageImpressions) + '/ ' + JSON.stringify(pageImpressionsUnique) + ', Page video view time: ' + JSON.stringify(pageVideoViewTime) + ', Page video views day: ' + JSON.stringify(pageVideoViewsDay) + ', Page video views week: ' + JSON.stringify(pageVideoViewsWeek) + ', Page video views day 28: ' + JSON.stringify(pageVideoViewsDay28))
       await this.insightModel.updateOne({ pageId: query.pageId }, result)
       let timeTaken = Date.now() - start;
-      console.log("Total time taken : " + timeTaken/1000 + " seconds");
+      console.log("Total time taken : " + timeTaken / 1000 + " seconds");
       return `Insight with id ${query.pageId} updated successfully`
     } catch (error) {
       console.log(error);
