@@ -7,6 +7,7 @@ import { FacebookPostQuery } from './dto/facebook-post.dto';
 import { FacebookPostDate } from './dto/facebook-post-date.dto';
 // import { FacebookInsightQuery } from './dto/facebook-insight.dto';
 import { FacebookInsightService } from './services/facebook-insight.service';
+import { Cron } from '@nestjs/schedule';
 
 @ApiTags('facebook-page-post-insight')
 @Controller()
@@ -29,6 +30,7 @@ export class FacebookController {
     return this.facebookPageService.savePage(FacebookPageQuery);
   }
 
+  @Cron('0 6 * * *')
   @Patch('/pages/:pageId')
   async updateFacebookPage(@Query() facebookPageQuery: FacebookPageQuery) {
     console.log('update page by id');
@@ -93,6 +95,12 @@ export class FacebookController {
   async saveInsight(@Query() facebookPageQuery: FacebookPageQuery) {
     console.log('save insight');
     return this.facebookInsightService.saveInsight(facebookPageQuery);
+  }
+
+  @Patch('/pages/insights/:pageId')
+  async updateInsight(@Query() facebookPageQuery: FacebookPageQuery) {
+    console.log('update insight');
+    return this.facebookInsightService.updateInsight(facebookPageQuery);
   }
 
   @Get('/pages/insights/:pageId')

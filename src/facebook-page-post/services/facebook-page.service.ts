@@ -27,48 +27,62 @@ export class FacebookPageService {
   }
   //Post
   async savePage(query: FacebookPageQuery) {
-    const pageInfo = await this.getFacebookPage(query)
-    const pageId = pageInfo.id
-    const pageName = pageInfo.name
-    const pageSingleLineAddress = await this.getSingleLineAddress(query)
-    const pageDescription = await this.getPageDescription(query)
-    const pageBio = await this.getPageBio(query)
-    const pageEmails = await this.getPageEmails(query)
-    const pageLocation = await this.getPageLocation(query)
-
-    const result = { pageId: pageId, name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location }
-    this.logger.debug('Page info: ' + result)
-    return await this.pageModel.create(result)
+    try {
+      const pageInfo = await this.getFacebookPage(query)
+      const pageId = pageInfo.id
+      const pageName = pageInfo.name
+      const pageSingleLineAddress = await this.getSingleLineAddress(query)
+      const pageDescription = await this.getPageDescription(query)
+      const pageBio = await this.getPageBio(query)
+      const pageEmails = await this.getPageEmails(query)
+      const pageLocation = await this.getPageLocation(query)
+      const result = { pageId: pageId, name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location }
+      this.logger.debug('Page info: ' + result)
+      return await this.pageModel.create(result)
+    } catch (error) {
+      console.log(error);
+      return error.message;
+    }
   }
 
   //Patch
   async updatePage(query: FacebookPageQuery) {
-    const page = await this.pageModel.findOne({ pageId: query.pageId })
-    if (!page) {
-      throw new HttpException('Page not found', 404)
+    try {
+      const page = await this.pageModel.findOne({ pageId: query.pageId })
+      if (!page) {
+        throw new HttpException('Page not found', 404)
+      }
+      const pageInfo = await this.getFacebookPage(query)
+      const pageName = pageInfo.name
+      const pageSingleLineAddress = await this.getSingleLineAddress(query)
+      const pageDescription = await this.getPageDescription(query)
+      const pageBio = await this.getPageBio(query)
+      const pageEmails = await this.getPageEmails(query)
+      const pageLocation = await this.getPageLocation(query)
+      const result = { name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location }
+      this.logger.debug('Updated page info: ' + result)
+      await this.pageModel.updateOne({ pageId: query.pageId }, result)
+      return `Page with id ${query.pageId} updated successfully`
+    } catch (error) {
+      console.log(error);
+      return error.message
     }
-    const pageInfo = await this.getFacebookPage(query)
-    const pageName = pageInfo.name
-    const pageSingleLineAddress = await this.getSingleLineAddress(query)
-    const pageDescription = await this.getPageDescription(query)
-    const pageBio = await this.getPageBio(query)
-    const pageEmails = await this.getPageEmails(query)
-    const pageLocation = await this.getPageLocation(query)
-    const result = { name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location }
-    this.logger.debug('Updated page info: ' + result)
-    await this.pageModel.updateOne({ pageId: query.pageId }, result)
-    return `Page with id ${query.pageId} updated successfully`
   }
 
   //Delete
   async deletePage(query: FacebookPageQuery) {
-    const page = await this.pageModel.findOne({ pageId: query.pageId })
-    if (!page) {
-      throw new HttpException('Page not found', 404)
+    try {
+      const page = await this.pageModel.findOne({ pageId: query.pageId })
+      if (!page) {
+        throw new HttpException('Page not found', 404)
+      }
+      await this.pageModel.deleteOne({ pageId: query.pageId })
+      this.logger.debug(query.pageId + ' deleted successfully')
+      return `Page with id ${query.pageId} deleted successfully`
+    } catch (error) {
+      console.log(error);
+      return error.message
     }
-    await this.pageModel.deleteOne({ pageId: query.pageId })
-    this.logger.debug(query.pageId + ' deleted successfully')
-    return `Page with id ${query.pageId} deleted successfully`
   }
 
   //Get
@@ -79,12 +93,17 @@ export class FacebookPageService {
   }
 
   async findById(query: FacebookPageQuery) {
-    const page = await this.pageModel.findOne({ pageId: query.pageId })
-    if (!page) {
-      throw new HttpException('Page not found', 404)
+    try {
+      const page = await this.pageModel.findOne({ pageId: query.pageId })
+      if (!page) {
+        throw new HttpException('Page not found', 404)
+      }
+      this.logger.debug('Find by pageId: ' + page)
+      return page
+    } catch (error) {
+      console.log(error);
+      return error.message
     }
-    this.logger.debug('Find by pageId: ' + page)
-    return page
   }
 
   async getPageLocation(query: FacebookPageQuery) {

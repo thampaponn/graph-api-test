@@ -17,9 +17,14 @@ export class FacebookPostService {
     ) { }
 
     async savePost(page: FacebookPageQuery) {
-        const postsInfo = await this.getFacebookPagePosts(page);
-        this.logger.debug('Posts info: ' + postsInfo.length)
-        return await this.postModel.insertMany(postsInfo);
+        try {
+            const postsInfo = await this.getFacebookPagePosts(page);
+            this.logger.debug('Posts info: ' + postsInfo.length)
+            return await this.postModel.insertMany(postsInfo);
+        } catch (error) {
+            console.log(error);
+            return error.message;
+        }
     }
 
     async getFacebookPagePosts(query: FacebookPageQuery) {
@@ -254,31 +259,51 @@ export class FacebookPostService {
 
 
     async findPostByDate(query: FacebookPostDate) {
-        this.logger.debug('Find all posts between 2 times: ' + query.pageId + ' ' + query.startDate + ' ' + query.endDate)
-        return await this.postModel.find({
-            pageId: { $in: query.pageId },
-            created_time: {
-                $gte: query.startDate,
-                $lt: query.endDate
-            }
-        });
+        try {
+            this.logger.debug('Find all posts between 2 times: ' + query.pageId + ' ' + query.startDate + ' ' + query.endDate)
+            return await this.postModel.find({
+                pageId: { $in: query.pageId },
+                created_time: {
+                    $gte: query.startDate,
+                    $lt: query.endDate
+                }
+            });
+        } catch (error) {
+            console.log(error);
+            return error.message;
+        }
     }
 
     async getAllPostsId(query: FacebookPageQuery) {
-        const posts = await this.postModel.find({ pageId: query.pageId });
-        this.logger.debug('Posts info: ' + posts)
-        return posts;
+        try {
+            const posts = await this.postModel.find({ pageId: query.pageId });
+            this.logger.debug('Posts info: ' + posts)
+            return posts;
+        } catch (error) {
+            console.log(error);
+            return error.message;
+        }
     }
 
     async updatePagePosts(query: FacebookPageQuery) {
-        await this.postModel.deleteMany({ pageId: query.pageId });
-        this.logger.debug('Post being updated: ' + query.pageId)
-        return await this.savePost(query);
+        try {
+            await this.postModel.deleteMany({ pageId: query.pageId });
+            this.logger.debug('Post being updated: ' + query.pageId)
+            return await this.savePost(query);
+        } catch (error) {
+            console.log(error);
+            return error.message;
+        }
     }
 
     async deleteOnePost(query: FacebookPostQuery) {
-        await this.postModel.findOneAndDelete({ postId: query.postId });
-        this.logger.debug('Post being deleted: ' + query.postId)
-        return `Deleted post with postId: ${query.postId} successfully`;
+        try {
+            await this.postModel.findOneAndDelete({ postId: query.postId });
+            this.logger.debug('Post being deleted: ' + query.postId)
+            return `Deleted post with postId: ${query.postId} successfully`;
+        } catch (error) {
+            console.log(error);
+            return error.message;
+        }
     }
 }

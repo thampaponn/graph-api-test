@@ -19,24 +19,6 @@ export class Insight {
     @Prop({ type: Object })
     pageImpressionsUnique: object;
 
-    // @Prop({ type: Number })
-    // postsCount: number;
-
-    // @Prop({ type: Object })
-    // postsTypeTotal: object;
-
-    // @Prop({ type: Object })
-    // allReactionsType: FacebookReactionType;
-
-    // @Prop({ type: Number })
-    // totalReactions: number;
-
-    // @Prop({ type: Number })
-    // totalComments: number;
-
-    // @Prop({ type: Number })
-    // totalShares: number;
-
     @Prop({ type: Object })
     pageVideoViewsDay: object;
 
@@ -48,11 +30,6 @@ export class Insight {
 
     @Prop({ type: Object })
     pageVideoViewTime: object;
-
-
-
-    // @Prop({ type: Number })
-    // linkClicks: number;
 
     @Prop({ type: Number })
     engagementRate: number;

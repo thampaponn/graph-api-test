@@ -1,5 +1,5 @@
 import { HttpService } from "@nestjs/axios";
-import { Injectable, Logger } from "@nestjs/common";
+import { HttpException, Injectable, Logger } from "@nestjs/common";
 // import { FacebookInsightQuery } from "../dto/facebook-insight.dto";
 import { IFacebookInsight, IFacebookInsightResponse, } from "../entities/facebook-insight.interface";
 import { InjectModel } from "@nestjs/mongoose";
@@ -169,66 +169,99 @@ export class FacebookInsightService {
   }
 
   async getPagePostsInsight(query: FacebookPageQuery) {
-    const postsCount = (await this.getFacebookPagePostCount(query)).length;
-    let photoType = 0;
-    let videoType = 0;
-    let captionType = 0;
-    let like = 0;
-    let love = 0;
-    let care = 0;
-    let wow = 0;
-    let haha = 0;
-    let sad = 0;
-    let angry = 0;
-    let totalComments = 0;
-    let totalShares = 0;
-    let totalClicks = 0;
-    for (const post of await this.postModel.find({ pageId: query.pageId })) {
-      if (post.postType === 'photo') {
-        photoType++;
-      } else if (post.postType === 'video') {
-        videoType++;
-      } else {
-        captionType++;
+    try {
+      const postsCount = (await this.getFacebookPagePostCount(query)).length;
+      let photoType = 0;
+      let videoType = 0;
+      let captionType = 0;
+      let like = 0;
+      let love = 0;
+      let care = 0;
+      let wow = 0;
+      let haha = 0;
+      let sad = 0;
+      let angry = 0;
+      let totalComments = 0;
+      let totalShares = 0;
+      let totalClicks = 0;
+      for (const post of await this.postModel.find({ pageId: query.pageId })) {
+        if (post.postType === 'photo') {
+          photoType++;
+        } else if (post.postType === 'video') {
+          videoType++;
+        } else {
+          captionType++;
+        }
       }
+      for (const post of await this.postModel.find({ pageId: query.pageId })) {
+        like += post.reactions?.like ?? 0;
+        love += post.reactions?.love ?? 0;
+        care += post.reactions?.care ?? 0;
+        wow += post.reactions?.wow ?? 0;
+        haha += post.reactions?.haha ?? 0;
+        sad += post.reactions?.sad ?? 0;
+        angry += post.reactions?.angry ?? 0;
+      }
+      for (const post of await this.postModel.find({ pageId: query.pageId })) {
+        totalComments += post.comments ?? 0;
+      }
+      for (const post of await this.postModel.find({ pageId: query.pageId })) {
+        totalShares += post.shares ?? 0;
+      }
+      for (const post of await this.postModel.find({ pageId: query.pageId })) {
+        totalClicks += post.postClicked ?? 0;
+      }
+      const linkClicks = await this.getLinksClicks(query);
+      const allReactionsType = { like, love, care, wow, haha, sad, angry }
+      const totalReactions = like + love + care + wow + haha + sad + angry
+      const postsTypeTotal = { photo: photoType, video: videoType, caption: captionType }
+      const result = { postsCount, postsTypeTotal, allReactionsType, totalReactions, totalComments, totalShares, totalClicks, linkClicks }
+      this.logger.debug(JSON.stringify(result))
+      return result
+    } catch (error) {
+      console.log(error);
+      return error.message;
     }
-    for (const post of await this.postModel.find({ pageId: query.pageId })) {
-      like += post.reactions?.like ?? 0;
-      love += post.reactions?.love ?? 0;
-      care += post.reactions?.care ?? 0;
-      wow += post.reactions?.wow ?? 0;
-      haha += post.reactions?.haha ?? 0;
-      sad += post.reactions?.sad ?? 0;
-      angry += post.reactions?.angry ?? 0;
-    }
-    for (const post of await this.postModel.find({ pageId: query.pageId })) {
-      totalComments += post.comments ?? 0;
-    }
-    for (const post of await this.postModel.find({ pageId: query.pageId })) {
-      totalShares += post.shares ?? 0;
-    }
-    for (const post of await this.postModel.find({ pageId: query.pageId })) {
-      totalClicks += post.postClicked ?? 0;
-    }
-    const linkClicks = await this.getLinksClicks(query);
-    const allReactionsType = { like, love, care, wow, haha, sad, angry }
-    const totalReactions = like + love + care + wow + haha + sad + angry
-    const postsTypeTotal = { photo: photoType, video: videoType, caption: captionType }
-    const result = { postsCount, postsTypeTotal, allReactionsType, totalReactions, totalComments, totalShares, totalClicks, linkClicks }
-    this.logger.debug(JSON.stringify(result))
-    return result
   }
 
   async saveInsight(query: FacebookPageQuery) {
-    const likesCount = await this.getFacebookPageLikes(query);
-    const pageImpressions = await this.getFacebookPageImpressions(query);
-    const pageImpressionsUnique = await this.getFacebookPageImpressionsUnique(query);
-    const pageVideoViewTime = (await this.getFacebookPageVideoViewTime(query)).values;
-    const pageVideoViewsDay = (await this.getFacebookPageVideoViewsDay(query)).values;
-    const pageVideoViewsWeek = (await this.getFacebookPageVideoViewsWeek(query)).values;
-    const pageVideoViewsDay28 = (await this.getFacebookPageVideoViewsDay28(query)).values;
-    const result = { pageId: query.pageId, pageFans: likesCount.todayLikes, pageImpressions, pageImpressionsUnique, pageVideoViewTime, pageVideoViewsDay, pageVideoViewsWeek, pageVideoViewsDay28 }
-    this.logger.debug('Insight info: ' + likesCount.todayLikes + ', Page Impression/Unique: ' + JSON.stringify(pageImpressions) + '/ ' + JSON.stringify(pageImpressionsUnique) + ', Page video view time: ' + JSON.stringify(pageVideoViewTime) + ', Page video views day: ' + JSON.stringify(pageVideoViewsDay) + ', Page video views week: ' + JSON.stringify(pageVideoViewsWeek) + ', Page video views day 28: ' + JSON.stringify(pageVideoViewsDay28))
-    return await this.insightModel.create(result);
+    try {
+      const likesCount = await this.getFacebookPageLikes(query);
+      const pageImpressions = await this.getFacebookPageImpressions(query);
+      const pageImpressionsUnique = await this.getFacebookPageImpressionsUnique(query);
+      const pageVideoViewTime = (await this.getFacebookPageVideoViewTime(query)).values;
+      const pageVideoViewsDay = (await this.getFacebookPageVideoViewsDay(query)).values;
+      const pageVideoViewsWeek = (await this.getFacebookPageVideoViewsWeek(query)).values;
+      const pageVideoViewsDay28 = (await this.getFacebookPageVideoViewsDay28(query)).values;
+      const result = { pageId: query.pageId, pageFans: likesCount.todayLikes, pageImpressions, pageImpressionsUnique, pageVideoViewTime, pageVideoViewsDay, pageVideoViewsWeek, pageVideoViewsDay28 }
+      this.logger.debug('Insight info: ' + likesCount.todayLikes + ', Page Impression/Unique: ' + JSON.stringify(pageImpressions) + '/ ' + JSON.stringify(pageImpressionsUnique) + ', Page video view time: ' + JSON.stringify(pageVideoViewTime) + ', Page video views day: ' + JSON.stringify(pageVideoViewsDay) + ', Page video views week: ' + JSON.stringify(pageVideoViewsWeek) + ', Page video views day 28: ' + JSON.stringify(pageVideoViewsDay28))
+      return await this.insightModel.create(result);
+    } catch (error) {
+      console.log(error);
+      return error.message;
+    }
+  }
+
+  async updateInsight(query: FacebookPageQuery) {
+    try {
+      const post = await this.insightModel.findOne({ pageId: query.pageId })
+      if (!post) {
+        throw new HttpException('Page not found', 404)
+      }
+      const likesCount = await this.getFacebookPageLikes(query);
+      const pageImpressions = await this.getFacebookPageImpressions(query);
+      const pageImpressionsUnique = await this.getFacebookPageImpressionsUnique(query);
+      const pageVideoViewTime = (await this.getFacebookPageVideoViewTime(query)).values;
+      const pageVideoViewsDay = (await this.getFacebookPageVideoViewsDay(query)).values;
+      const pageVideoViewsWeek = (await this.getFacebookPageVideoViewsWeek(query)).values;
+      const pageVideoViewsDay28 = (await this.getFacebookPageVideoViewsDay28(query)).values;
+      const result = { pageFans: likesCount.todayLikes, pageImpressions, pageImpressionsUnique, pageVideoViewTime, pageVideoViewsDay, pageVideoViewsWeek, pageVideoViewsDay28 }
+      this.logger.debug('Updated insight info: ' + likesCount.todayLikes + ', Page Impression/Unique: ' + JSON.stringify(pageImpressions) + '/ ' + JSON.stringify(pageImpressionsUnique) + ', Page video view time: ' + JSON.stringify(pageVideoViewTime) + ', Page video views day: ' + JSON.stringify(pageVideoViewsDay) + ', Page video views week: ' + JSON.stringify(pageVideoViewsWeek) + ', Page video views day 28: ' + JSON.stringify(pageVideoViewsDay28))
+      await this.insightModel.updateOne({ pageId: query.pageId }, result)
+      return `Insight with id ${query.pageId} updated successfully`
+    } catch (error) {
+      console.log(error);
+      return error.message;
+    }
   }
 }
