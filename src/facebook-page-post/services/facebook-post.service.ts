@@ -17,9 +17,12 @@ export class FacebookPostService {
     ) { }
 
     async savePost(page: FacebookPageQuery) {
+        let start = Date.now();
         try {
             const postsInfo = await this.getFacebookPagePosts(page);
             this.logger.debug('Posts info: ' + postsInfo.length)
+            let timeTaken = Date.now() - start;
+            console.log("Total time taken : " + timeTaken/1000 + " seconds");
             return await this.postModel.insertMany(postsInfo);
         } catch (error) {
             console.log(error);
@@ -259,8 +262,11 @@ export class FacebookPostService {
 
 
     async findPostByDate(query: FacebookPostDate) {
+        let start = Date.now();
         try {
             this.logger.debug('Find all posts between 2 times: ' + query.pageId + ' ' + query.startDate + ' ' + query.endDate)
+            let timeTaken = Date.now() - start;
+            console.log("Total time taken : " + timeTaken/1000 + " seconds");
             return await this.postModel.find({
                 pageId: { $in: query.pageId },
                 created_time: {
@@ -275,9 +281,12 @@ export class FacebookPostService {
     }
 
     async getAllPostsId(query: FacebookPageQuery) {
+        let start = Date.now();
         try {
             const posts = await this.postModel.find({ pageId: query.pageId });
             this.logger.debug('Posts info: ' + posts)
+            let timeTaken = Date.now() - start;
+            console.log("Total time taken : " + timeTaken/1000 + " seconds");
             return posts;
         } catch (error) {
             console.log(error);
@@ -286,9 +295,12 @@ export class FacebookPostService {
     }
 
     async updatePagePosts(query: FacebookPageQuery) {
+        let start = Date.now();
         try {
             await this.postModel.deleteMany({ pageId: query.pageId });
             this.logger.debug('Post being updated: ' + query.pageId)
+            let timeTaken = Date.now() - start;
+            console.log("Total time taken : " + timeTaken/1000 + " seconds");
             return await this.savePost(query);
         } catch (error) {
             console.log(error);
@@ -297,9 +309,12 @@ export class FacebookPostService {
     }
 
     async deleteOnePost(query: FacebookPostQuery) {
+        let start = Date.now();
         try {
             await this.postModel.findOneAndDelete({ postId: query.postId });
             this.logger.debug('Post being deleted: ' + query.postId)
+            let timeTaken = Date.now() - start;
+            console.log("Total time taken : " + timeTaken/1000 + " seconds");
             return `Deleted post with postId: ${query.postId} successfully`;
         } catch (error) {
             console.log(error);

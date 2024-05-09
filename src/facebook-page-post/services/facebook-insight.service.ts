@@ -169,6 +169,7 @@ export class FacebookInsightService {
   }
 
   async getPagePostsInsight(query: FacebookPageQuery) {
+    let start = Date.now();
     try {
       const postsCount = (await this.getFacebookPagePostCount(query)).length;
       let photoType = 0;
@@ -217,6 +218,8 @@ export class FacebookInsightService {
       const postsTypeTotal = { photo: photoType, video: videoType, caption: captionType }
       const result = { postsCount, postsTypeTotal, allReactionsType, totalReactions, totalComments, totalShares, totalClicks, linkClicks }
       this.logger.debug(JSON.stringify(result))
+      let timeTaken = Date.now() - start;
+      console.log("Total time taken : " + timeTaken/1000 + " seconds");
       return result
     } catch (error) {
       console.log(error);
@@ -225,6 +228,7 @@ export class FacebookInsightService {
   }
 
   async saveInsight(query: FacebookPageQuery) {
+    let start = Date.now();
     try {
       const likesCount = await this.getFacebookPageLikes(query);
       const pageImpressions = await this.getFacebookPageImpressions(query);
@@ -235,6 +239,8 @@ export class FacebookInsightService {
       const pageVideoViewsDay28 = (await this.getFacebookPageVideoViewsDay28(query)).values;
       const result = { pageId: query.pageId, pageFans: likesCount.todayLikes, pageImpressions, pageImpressionsUnique, pageVideoViewTime, pageVideoViewsDay, pageVideoViewsWeek, pageVideoViewsDay28 }
       this.logger.debug('Insight info: ' + likesCount.todayLikes + ', Page Impression/Unique: ' + JSON.stringify(pageImpressions) + '/ ' + JSON.stringify(pageImpressionsUnique) + ', Page video view time: ' + JSON.stringify(pageVideoViewTime) + ', Page video views day: ' + JSON.stringify(pageVideoViewsDay) + ', Page video views week: ' + JSON.stringify(pageVideoViewsWeek) + ', Page video views day 28: ' + JSON.stringify(pageVideoViewsDay28))
+      let timeTaken = Date.now() - start;
+      console.log("Total time taken : " + timeTaken/1000 + " milliseconds");
       return await this.insightModel.create(result);
     } catch (error) {
       console.log(error);
@@ -243,6 +249,7 @@ export class FacebookInsightService {
   }
 
   async updateInsight(query: FacebookPageQuery) {
+    let start = Date.now();
     try {
       const post = await this.insightModel.findOne({ pageId: query.pageId })
       if (!post) {
@@ -258,6 +265,8 @@ export class FacebookInsightService {
       const result = { pageFans: likesCount.todayLikes, pageImpressions, pageImpressionsUnique, pageVideoViewTime, pageVideoViewsDay, pageVideoViewsWeek, pageVideoViewsDay28 }
       this.logger.debug('Updated insight info: ' + likesCount.todayLikes + ', Page Impression/Unique: ' + JSON.stringify(pageImpressions) + '/ ' + JSON.stringify(pageImpressionsUnique) + ', Page video view time: ' + JSON.stringify(pageVideoViewTime) + ', Page video views day: ' + JSON.stringify(pageVideoViewsDay) + ', Page video views week: ' + JSON.stringify(pageVideoViewsWeek) + ', Page video views day 28: ' + JSON.stringify(pageVideoViewsDay28))
       await this.insightModel.updateOne({ pageId: query.pageId }, result)
+      let timeTaken = Date.now() - start;
+      console.log("Total time taken : " + timeTaken/1000 + " seconds");
       return `Insight with id ${query.pageId} updated successfully`
     } catch (error) {
       console.log(error);

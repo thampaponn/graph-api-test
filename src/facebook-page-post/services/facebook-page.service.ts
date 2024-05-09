@@ -27,6 +27,7 @@ export class FacebookPageService {
   }
   //Post
   async savePage(query: FacebookPageQuery) {
+    let start = Date.now();
     try {
       const pageInfo = await this.getFacebookPage(query)
       const pageId = pageInfo.id
@@ -38,6 +39,8 @@ export class FacebookPageService {
       const pageLocation = await this.getPageLocation(query)
       const result = { pageId: pageId, name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location }
       this.logger.debug('Page info: ' + result)
+      let timeTaken = Date.now() - start;
+      console.log("Total time taken : " + timeTaken/1000 + " seconds");
       return await this.pageModel.create(result)
     } catch (error) {
       console.log(error);
@@ -47,6 +50,7 @@ export class FacebookPageService {
 
   //Patch
   async updatePage(query: FacebookPageQuery) {
+    let start = Date.now();
     try {
       const page = await this.pageModel.findOne({ pageId: query.pageId })
       if (!page) {
@@ -62,6 +66,8 @@ export class FacebookPageService {
       const result = { name: pageName, singleLineAddress: pageSingleLineAddress.single_line_address, description: pageDescription.description, bio: pageBio.bio, email: pageEmails.emails[0], location: pageLocation.location }
       this.logger.debug('Updated page info: ' + result)
       await this.pageModel.updateOne({ pageId: query.pageId }, result)
+      let timeTaken = Date.now() - start;
+      console.log("Total time taken : " + timeTaken/1000 + " seconds");
       return `Page with id ${query.pageId} updated successfully`
     } catch (error) {
       console.log(error);
@@ -71,6 +77,7 @@ export class FacebookPageService {
 
   //Delete
   async deletePage(query: FacebookPageQuery) {
+    let start = Date.now();
     try {
       const page = await this.pageModel.findOne({ pageId: query.pageId })
       if (!page) {
@@ -78,6 +85,8 @@ export class FacebookPageService {
       }
       await this.pageModel.deleteOne({ pageId: query.pageId })
       this.logger.debug(query.pageId + ' deleted successfully')
+      let timeTaken = Date.now() - start;
+      console.log("Total time taken : " + timeTaken/1000 + " seconds");
       return `Page with id ${query.pageId} deleted successfully`
     } catch (error) {
       console.log(error);
@@ -87,18 +96,25 @@ export class FacebookPageService {
 
   //Get
   async getAllPages() {
+    let start = Date.now();
     const pages = await this.pageModel.find()
     this.logger.debug(pages + 'info fetched successfully')
+    let timeTaken = Date.now() - start;
+    console.log("Total time taken : " + timeTaken/1000 + " seconds");
     return pages
   }
 
   async findById(query: FacebookPageQuery) {
+    let start = Date.now();
+
     try {
       const page = await this.pageModel.findOne({ pageId: query.pageId })
       if (!page) {
         throw new HttpException('Page not found', 404)
       }
       this.logger.debug('Find by pageId: ' + page)
+      let timeTaken = Date.now() - start;
+      console.log("Total time taken : " + timeTaken/1000 + " milliseconds");
       return page
     } catch (error) {
       console.log(error);
